@@ -1,0 +1,175 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Calculateur de Trapèze</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background-color: #f4f4f4;
+      margin: 0;
+      padding: 0;
+    }
+    .container {
+      max-width: 600px;
+      margin: 40px auto;
+      background: #fff;
+      padding: 20px;
+      border-radius: 12px;
+      box-shadow: 0 0 12px rgba(0,0,0,0.1);
+      text-align: center;
+    }
+    h1 {
+      color: #007BFF;
+    }
+    img.figure {
+      max-width: 100%;
+      height: auto;
+      margin-top: 20px;
+    }
+    label, input {
+      display: block;
+      margin: 10px auto;
+      font-size: 1.1rem;
+    }
+    input[type="number"] {
+      padding: 10px;
+      width: 80%;
+    }
+    button {
+      padding: 10px 20px;
+      margin-top: 15px;
+      background-color: #007BFF;
+      color: white;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+    }
+    button:hover {
+      background-color: #0056b3;
+    }
+    .result {
+      margin-top: 20px;
+      font-size: 1.2rem;
+      color: #333;
+    }
+    .formules {
+      margin-top: 20px;
+      font-size: 1rem;
+      background: #eef;
+      padding: 10px;
+      border-radius: 8px;
+    }
+    svg {
+      display: block;
+      margin: 30px auto 0;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>Calculateur de Trapèze</h1>
+
+    <img src="trapeze.svg" alt="Trapèze" class="figure">
+
+    <div class="formules">
+      Aire = ((grande base + petite base) × hauteur) ÷ 2
+    </div>
+
+    <label for="base1">Grande base :</label>
+    <input type="number" id="base1" placeholder="Entrez la grande base">
+
+    <label for="base2">Petite base :</label>
+    <input type="number" id="base2" placeholder="Entrez la petite base">
+
+    <label for="hauteur">Hauteur :</label>
+    <input type="number" id="hauteur" placeholder="Entrez la hauteur">
+
+    <button onclick="calculerTrapeze()">Calculer</button>
+
+    <div class="result" id="result"></div>
+
+    <svg id="svgTrapeze" width="300" height="200">
+      <polygon id="forme" points="" fill="none" stroke="#007BFF" stroke-width="2"/>
+    </svg>
+  </div>
+
+  <script>
+    function calculerTrapeze() {
+      const base1 = parseFloat(document.getElementById('base1').value);
+      const base2 = parseFloat(document.getElementById('base2').value);
+      const hauteur = parseFloat(document.getElementById('hauteur').value);
+      const resultDiv = document.getElementById('result');
+
+      if (isNaN(base1) || isNaN(base2) || isNaN(hauteur) || base1 <= 0 || base2 <= 0 || hauteur <= 0) {
+        resultDiv.innerText = "Veuillez entrer des valeurs valides.";
+        return;
+      }
+
+      const aire = ((base1 + base2) * hauteur) / 2;
+      resultDiv.innerHTML = `Aire : ${aire.toFixed(2)} unités²`;
+
+      dessinerTrapeze(base1, base2, hauteur);
+    }
+
+    function dessinerTrapeze(base1, base2, hauteur) {
+      const svg = document.getElementById("svgTrapeze");
+      const poly = document.getElementById("forme");
+
+      const scale = Math.min(220 / Math.max(base1, base2), 120 / hauteur);
+      const b1 = base1 * scale;
+      const b2 = base2 * scale;
+      const h = hauteur * scale;
+
+      const offsetX = 40;
+      const offsetY = 40;
+
+      const topX = offsetX + (b1 - b2) / 2;
+
+      const points = [
+        `${offsetX},${offsetY + h}`, // Bas gauche
+        `${offsetX + b1},${offsetY + h}`, // Bas droite
+        `${topX + b2},${offsetY}`, // Haut droite
+        `${topX},${offsetY}` // Haut gauche
+      ].join(" ");
+
+      poly.setAttribute("points", points);
+    }
+  </script>
+</body>
+</html>
+
+
+<!-- Bannière de cookies RGPD -->
+<div id="cookie-banner" style="position: fixed; bottom: 0; left: 0; right: 0; background: #2c3e50; color: white; padding: 15px; text-align: center; z-index: 9999;">
+  <span>Ce site utilise des cookies pour améliorer votre expérience et afficher des publicités personnalisées (Google AdSense). En continuant, vous acceptez notre <a href="politique-confidentialite.html" style="color: #00bcd4; text-decoration: underline;">politique de confidentialité</a>.</span>
+  <br><br>
+  <button onclick="acceptCookies()" style="margin-right: 10px; padding: 6px 14px; background: #00c853; color: white; border: none; border-radius: 4px; cursor: pointer;">Accepter</button>
+  <button onclick="rejectCookies()" style="padding: 6px 14px; background: #c62828; color: white; border: none; border-radius: 4px; cursor: pointer;">Refuser</button>
+</div>
+
+<script>
+function acceptCookies() {
+  localStorage.setItem("cookieConsent", "accepted");
+  document.getElementById("cookie-banner").style.display = "none";
+  // Ici, tu peux activer les scripts AdSense ou Analytics par exemple
+}
+
+function rejectCookies() {
+  localStorage.setItem("cookieConsent", "rejected");
+  document.getElementById("cookie-banner").style.display = "none";
+  // Ici, tu désactives les scripts optionnels
+}
+
+window.onload = function () {
+  const consent = localStorage.getItem("cookieConsent");
+  if (consent === "accepted") {
+    document.getElementById("cookie-banner").style.display = "none";
+    // Activer les scripts ici si nécessaire
+  } else if (consent === "rejected") {
+    document.getElementById("cookie-banner").style.display = "none";
+    // Ne rien activer
+  }
+};
+</script>

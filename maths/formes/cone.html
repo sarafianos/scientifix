@@ -1,0 +1,209 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Calculateur de Cône</title>
+  <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background: #f4f4f4;
+      margin: 0;
+      padding: 0;
+    }
+    .container {
+      max-width: 700px;
+      margin: 40px auto;
+      background: white;
+      padding: 20px;
+      border-radius: 12px;
+      box-shadow: 0 0 12px rgba(0, 0, 0, 0.1);
+      text-align: center;
+    }
+    h1 {
+      color: #007BFF;
+    }
+    img {
+      max-width: 200px;
+      display: block;
+      margin: 10px auto;
+    }
+    .formules {
+      background: #eef;
+      padding: 10px;
+      border-radius: 8px;
+      margin-bottom: 15px;
+    }
+    label, input {
+      display: block;
+      margin: 10px auto;
+      font-size: 1.1rem;
+    }
+    input[type="number"] {
+      padding: 10px;
+      width: 80%;
+    }
+    button {
+      padding: 10px 20px;
+      margin-top: 10px;
+      background-color: #007BFF;
+      color: white;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+    }
+    button:hover {
+      background-color: #0056b3;
+    }
+    .result {
+      margin-top: 20px;
+      font-size: 1.2rem;
+      color: #333;
+    }
+    #conePlot {
+      margin-top: 40px;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>Calculateur de Cône</h1>
+    <img src="cone.svg" alt="Illustration d’un cône" />
+
+    <div class="formules">
+      Aire = π × r × (r + √(r² + h²))<br>
+      Volume = (1/3) × π × r² × h
+    </div>
+
+    <label for="rayon">Rayon (r) :</label>
+    <input type="number" id="rayon" placeholder="Entrez le rayon">
+
+    <label for="hauteur">Hauteur (h) :</label>
+    <input type="number" id="hauteur" placeholder="Entrez la hauteur">
+
+    <button onclick="calculerCone()">Calculer</button>
+
+    <div class="result" id="result"></div>
+
+    <div id="conePlot"></div>
+  </div>
+
+  <script>
+    function calculerCone() {
+      const r = parseFloat(document.getElementById("rayon").value);
+      const h = parseFloat(document.getElementById("hauteur").value);
+      const resultDiv = document.getElementById("result");
+
+      if (isNaN(r) || isNaN(h) || r <= 0 || h <= 0) {
+        resultDiv.innerText = "Veuillez entrer des valeurs positives pour le rayon et la hauteur.";
+        return;
+      }
+
+      const aire = Math.PI * r * (r + Math.sqrt(r*r + h*h));
+      const volume = (1/3) * Math.PI * r * r * h;
+
+      resultDiv.innerHTML = `
+        Aire : ${aire.toFixed(2)} unités²<br>
+        Volume : ${volume.toFixed(2)} unités³
+      `;
+
+      afficherCone3D(r, h);
+    }
+
+    function afficherCone3D(r, h) {
+	  const resolution = 60;
+	  const theta = [];
+	  for (let i = 0; i <= resolution; i++) {
+		theta.push((2 * Math.PI * i) / resolution);
+	  }
+
+	  // Base circulaire
+	  const xb = theta.map(t => r * Math.cos(t));
+	  const yb = theta.map(t => r * Math.sin(t));
+	  const zb = Array(resolution + 1).fill(0);
+
+	  // Surface latérale (triangles entre base et sommet)
+	  const x = [], y = [], z = [];
+	  for (let i = 0; i < resolution; i++) {
+		x.push([xb[i], xb[i + 1], 0]);
+		y.push([yb[i], yb[i + 1], 0]);
+		z.push([0, 0, h]);
+	  }
+
+	  const faces = {
+		type: 'mesh3d',
+		x: x.flat(),
+		y: y.flat(),
+		z: z.flat(),
+		i: x.map((_, k) => 3 * k),
+		j: x.map((_, k) => 3 * k + 1),
+		k: x.map((_, k) => 3 * k + 2),
+		color: '#3399ff',
+		opacity: 1,
+		flatshading: true,
+		showscale: false
+	  };
+
+	  const disque = {
+		type: 'mesh3d',
+		x: [0, ...xb],
+		y: [0, ...yb],
+		z: [0, ...zb],
+		i: Array.from({ length: resolution }, (_, i) => 0),
+		j: Array.from({ length: resolution }, (_, i) => i + 1),
+		k: Array.from({ length: resolution }, (_, i) => i + 2),
+		color: '#3399ff',
+		opacity: 1,
+		flatshading: true,
+		showscale: false
+	  };
+
+	  const layout = {
+		margin: { l: 0, r: 0, b: 0, t: 0 },
+		scene: {
+		  aspectmode: "data",
+		  xaxis: { visible: false, showgrid: false },
+		  yaxis: { visible: false, showgrid: false },
+		  zaxis: { visible: false, showgrid: false }
+		}
+	  };
+
+	  Plotly.newPlot("conePlot", [faces, disque], layout, { responsive: true });
+	}
+  </script>
+</body>
+</html>
+
+<!-- Bannière de cookies RGPD -->
+<div id="cookie-banner" style="position: fixed; bottom: 0; left: 0; right: 0; background: #2c3e50; color: white; padding: 15px; text-align: center; z-index: 9999;">
+  <span>Ce site utilise des cookies pour améliorer votre expérience et afficher des publicités personnalisées (Google AdSense). En continuant, vous acceptez notre <a href="politique-confidentialite.html" style="color: #00bcd4; text-decoration: underline;">politique de confidentialité</a>.</span>
+  <br><br>
+  <button onclick="acceptCookies()" style="margin-right: 10px; padding: 6px 14px; background: #00c853; color: white; border: none; border-radius: 4px; cursor: pointer;">Accepter</button>
+  <button onclick="rejectCookies()" style="padding: 6px 14px; background: #c62828; color: white; border: none; border-radius: 4px; cursor: pointer;">Refuser</button>
+</div>
+
+<script>
+function acceptCookies() {
+  localStorage.setItem("cookieConsent", "accepted");
+  document.getElementById("cookie-banner").style.display = "none";
+  // Ici, tu peux activer les scripts AdSense ou Analytics par exemple
+}
+
+function rejectCookies() {
+  localStorage.setItem("cookieConsent", "rejected");
+  document.getElementById("cookie-banner").style.display = "none";
+  // Ici, tu désactives les scripts optionnels
+}
+
+window.onload = function () {
+  const consent = localStorage.getItem("cookieConsent");
+  if (consent === "accepted") {
+    document.getElementById("cookie-banner").style.display = "none";
+    // Activer les scripts ici si nécessaire
+  } else if (consent === "rejected") {
+    document.getElementById("cookie-banner").style.display = "none";
+    // Ne rien activer
+  }
+};
+</script>

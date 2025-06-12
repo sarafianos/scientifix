@@ -1,0 +1,246 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <title>Courbes Planes</title>
+  <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/mathjs/11.8.0/math.min.js"></script>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background: #f5f5f5;
+      padding: 20px;
+    }
+    .container {
+      background: #fff;
+      padding: 20px;
+      border-radius: 12px;
+      max-width: 900px;
+      margin: auto;
+      box-shadow: 0 0 10px rgba(0,0,0,0.1);
+    }
+    h1 {
+      color: #3399ff;
+      text-align: center;
+    }
+    select, input, button {
+      width: 100%;
+      margin-top: 10px;
+      font-size: 1rem;
+      padding: 8px;
+    }
+    #params {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+    }
+    #params input {
+      flex: 1 1 100px;
+    }
+    #equation {
+      margin-top: 10px;
+      font-style: italic;
+      color: #333;
+    }
+    #graph {
+      margin-top: 20px;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>Courbes Planes</h1>
+
+    <label for="curveType">Choisir une courbe :</label>
+    <select id="curveType" onchange="updateParams()">
+      <option value="line">Droite (y = ax + b)</option>
+      <option value="parabola">Parabole (y = ax² + bx + c)</option>
+      <option value="circle">Cercle (x² + y² = r²)</option>
+      <option value="ellipse">Ellipse (x²/a² + y²/b² = 1)</option>
+      <option value="cycloid">Cycloïde</option>
+      <option value="cardioid">Cardioïde</option>
+      <option value="lemniscate">Lemniscate de Bernoulli</option>
+      <option value="rose">Rose (rhodonea)</option>
+      <option value="spiral">Spirale d'Archimède</option>
+      <option value="custom">Fonction personnalisée</option>
+    </select>
+
+    <div id="equation"></div>
+    <div id="params"></div>
+
+    <button onclick="plot()">Tracer la courbe</button>
+    <div id="graph"></div>
+  </div>
+
+  <script>
+    const equations = {
+      line: "y = a·x + b",
+      parabola: "y = a·x² + b·x + c",
+      circle: "x² + y² = r²",
+      ellipse: "x²/a² + y²/b² = 1",
+      cycloid: "x = r(t - sin(t)), y = r(1 - cos(t))",
+      cardioid: "x = a(2cos(t) - cos(2t)), y = a(2sin(t) - sin(2t))",
+      lemniscate: "r² = a²·cos(2t)",
+      rose: "r = a·cos(k·t)",
+      spiral: "r = a + b·t",
+      custom: "y = f(x)"
+    };
+
+    function updateParams() {
+      const curve = document.getElementById("curveType").value;
+      const paramsDiv = document.getElementById("params");
+      const eqDiv = document.getElementById("equation");
+      paramsDiv.innerHTML = "";
+      eqDiv.innerText = equations[curve] || "";
+
+      const inputs = {
+        line: ["a", "b"],
+        parabola: ["a", "b", "c"],
+        circle: ["r"],
+        ellipse: ["a", "b"],
+        cycloid: ["r"],
+        cardioid: ["a"],
+        lemniscate: ["a"],
+        rose: ["a", "k"],
+        spiral: ["a", "b"],
+        custom: ["f(x)"]
+      };
+
+      (inputs[curve] || []).forEach(name => {
+        const input = document.createElement("input");
+        input.placeholder = name;
+        input.id = name;
+        paramsDiv.appendChild(input);
+      });
+    }
+
+    function plot() {
+      const curve = document.getElementById("curveType").value;
+      const get = id => parseFloat(document.getElementById(id)?.value || 0);
+      const getExpr = id => document.getElementById(id)?.value;
+
+      let x = [], y = [];
+
+      if (curve === "line") {
+        const a = get("a"), b = get("b");
+        for (let xi = -10; xi <= 10; xi += 0.1) {
+          x.push(xi);
+          y.push(a * xi + b);
+        }
+      } else if (curve === "parabola") {
+        const a = get("a"), b = get("b"), c = get("c");
+        for (let xi = -10; xi <= 10; xi += 0.1) {
+          x.push(xi);
+          y.push(a * xi * xi + b * xi + c);
+        }
+      } else if (curve === "circle") {
+        const r = get("r");
+        for (let t = 0; t <= 2 * Math.PI; t += 0.01) {
+          x.push(r * Math.cos(t));
+          y.push(r * Math.sin(t));
+        }
+      } else if (curve === "ellipse") {
+        const a = get("a"), b = get("b");
+        for (let t = 0; t <= 2 * Math.PI; t += 0.01) {
+          x.push(a * Math.cos(t));
+          y.push(b * Math.sin(t));
+        }
+      } else if (curve === "cycloid") {
+        const r = get("r");
+        for (let t = 0; t <= 4 * Math.PI; t += 0.01) {
+          x.push(r * (t - Math.sin(t)));
+          y.push(r * (1 - Math.cos(t)));
+        }
+      } else if (curve === "cardioid") {
+        const a = get("a");
+        for (let t = 0; t <= 2 * Math.PI; t += 0.01) {
+          x.push(a * (2 * Math.cos(t) - Math.cos(2 * t)));
+          y.push(a * (2 * Math.sin(t) - Math.sin(2 * t)));
+        }
+      } else if (curve === "lemniscate") {
+        const a = get("a");
+        for (let t = 0; t <= 2 * Math.PI; t += 0.01) {
+          const r2 = a * a * Math.cos(2 * t);
+          if (r2 >= 0) {
+            const r = Math.sqrt(r2);
+            x.push(r * Math.cos(t));
+            y.push(r * Math.sin(t));
+          }
+        }
+      } else if (curve === "rose") {
+        const a = get("a"), k = get("k");
+        for (let t = 0; t <= 2 * Math.PI; t += 0.01) {
+          const r = a * Math.cos(k * t);
+          x.push(r * Math.cos(t));
+          y.push(r * Math.sin(t));
+        }
+      } else if (curve === "spiral") {
+        const a = get("a"), b = get("b");
+        for (let t = 0; t <= 6 * Math.PI; t += 0.01) {
+          const r = a + b * t;
+          x.push(r * Math.cos(t));
+          y.push(r * Math.sin(t));
+        }
+      } else if (curve === "custom") {
+        const fx = getExpr("f(x)");
+        try {
+          const expr = math.compile(fx);
+          for (let xi = -10; xi <= 10; xi += 0.1) {
+            x.push(xi);
+            y.push(expr.evaluate({ x: xi }));
+          }
+        } catch (e) {
+          alert("Erreur dans la fonction personnalisée : " + e.message);
+          return;
+        }
+      }
+
+      Plotly.newPlot("graph", [{
+        x, y,
+        mode: "lines",
+        line: { color: "#3399ff" }
+      }], {
+        margin: { t: 20 },
+        xaxis: { title: "x", zeroline: true },
+        yaxis: { title: "y", zeroline: true }
+      });
+    }
+
+    updateParams();
+  </script>
+</body>
+</html>
+
+
+<!-- Bannière de cookies RGPD -->
+<div id="cookie-banner" style="position: fixed; bottom: 0; left: 0; right: 0; background: #2c3e50; color: white; padding: 15px; text-align: center; z-index: 9999;">
+  <span>Ce site utilise des cookies pour améliorer votre expérience et afficher des publicités personnalisées (Google AdSense). En continuant, vous acceptez notre <a href="politique-confidentialite.html" style="color: #00bcd4; text-decoration: underline;">politique de confidentialité</a>.</span>
+  <br><br>
+  <button onclick="acceptCookies()" style="margin-right: 10px; padding: 6px 14px; background: #00c853; color: white; border: none; border-radius: 4px; cursor: pointer;">Accepter</button>
+  <button onclick="rejectCookies()" style="padding: 6px 14px; background: #c62828; color: white; border: none; border-radius: 4px; cursor: pointer;">Refuser</button>
+</div>
+
+<script>
+function acceptCookies() {
+  localStorage.setItem("cookieConsent", "accepted");
+  document.getElementById("cookie-banner").style.display = "none";
+  // Ici, tu peux activer les scripts AdSense ou Analytics par exemple
+}
+
+function rejectCookies() {
+  localStorage.setItem("cookieConsent", "rejected");
+  document.getElementById("cookie-banner").style.display = "none";
+  // Ici, tu désactives les scripts optionnels
+}
+
+window.onload = function () {
+  const consent = localStorage.getItem("cookieConsent");
+  if (consent === "accepted") {
+    document.getElementById("cookie-banner").style.display = "none";
+    // Activer les scripts ici si nécessaire
+  } else if (consent === "rejected") {
+    document.getElementById("cookie-banner").style.display = "none";
+    // Ne rien activer
+  }
+};
+</script>

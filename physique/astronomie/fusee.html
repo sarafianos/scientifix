@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <title>Simulation de mise en orbite</title>
+  <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
+  <style>
+    body { font-family: Arial, sans-serif; margin: 30px; }
+    input { margin: 5px; width: 80px; }
+    label { display: block; margin-bottom: 8px; }
+    button { margin-top: 10px; padding: 5px 15px; }
+  </style>
+</head>
+<body>
+
+<h1>Simulation d'une fusée en orbite (trajectoire verticale)</h1>
+
+<label>Masse initiale (kg) : <input id="mass" type="number" value="50000"></label>
+<label>Poussée (N) : <input id="thrust" type="number" value="1000000"></label>
+<label>Durée de poussée (s) : <input id="duration" type="number" value="150"></label>
+<label>Masse carburant (kg) : <input id="fuel" type="number" value="20000"></label>
+
+<button onclick="simuler()">Lancer la simulation</button>
+
+<div id="plot" style="width:100%;height:600px;"></div>
+
+<script>
+function simuler() {
+  const m0 = parseFloat(document.getElementById("mass").value);
+  const thrust = parseFloat(document.getElementById("thrust").value);
+  const burnTime = parseFloat(document.getElementById("duration").value);
+  const fuel = parseFloat(document.getElementById("fuel").value);
+
+  const R = 6.371e6; // Rayon Terre (m)
+  const G = 6.67430e-11;
+  const M = 5.972e24;
+
+  const dt = 0.5;
+  let t = 0;
+  let h = 0;
+  let v = 0;
+  let mass = m0;
+
+  let t_data = [], h_data = [], v_data = [];
+
+  while (mass > m0 - fuel || v > 0) {
+    const g = G * M / Math.pow(R + h, 2);
+    const isBurning = t < burnTime && mass > m0 - fuel;
+    const a = (isBurning ? thrust / mass : 0) - g;
+
+    v += a * dt;
+    h += v * dt;
+
+    if (isBurning) {
+      const fuelRate = fuel / burnTime;
+      mass -= fuelRate * dt;
+    }
+
+    t += dt;
+    if (h < 0) break;
+
+    t_data.push(t);
+    h_data.push(h);
+    v_data.push(v);
+  }
+
+  const trace1 = {
+    x: t_data,
+    y: h_data,
+    name: 'Altitude (m)',
+    yaxis: 'y1',
+    mode: 'lines',
+    line: { color: 'blue' }
+  };
+
+  const trace2 = {
+    x: t_data,
+    y: v_data,
+    name: 'Vitesse (m/s)',
+    yaxis: 'y2',
+    mode: 'lines',
+    line: { color: 'red' }
+  };
+
+  const layout = {
+    title: 'Altitude et vitesse en fonction du temps',
+    xaxis: { title: 'Temps (s)' },
+    yaxis: { title: 'Altitude (m)', side: 'left' },
+    yaxis2: {
+      title: 'Vitesse (m/s)',
+      overlaying: 'y',
+      side: 'right'
+    }
+  };
+
+  Plotly.newPlot('plot', [trace1, trace2], layout);
+}
+</script>
+
+</body>
+</html>
+
+
+
+<!-- Bannière de cookies RGPD -->
+<div id="cookie-banner" style="position: fixed; bottom: 0; left: 0; right: 0; background: #2c3e50; color: white; padding: 15px; text-align: center; z-index: 9999;">
+  <span>Ce site utilise des cookies pour améliorer votre expérience et afficher des publicités personnalisées (Google AdSense). En continuant, vous acceptez notre <a href="politique-confidentialite.html" style="color: #00bcd4; text-decoration: underline;">politique de confidentialité</a>.</span>
+  <br><br>
+  <button onclick="acceptCookies()" style="margin-right: 10px; padding: 6px 14px; background: #00c853; color: white; border: none; border-radius: 4px; cursor: pointer;">Accepter</button>
+  <button onclick="rejectCookies()" style="padding: 6px 14px; background: #c62828; color: white; border: none; border-radius: 4px; cursor: pointer;">Refuser</button>
+</div>
+
+<script>
+function acceptCookies() {
+  localStorage.setItem("cookieConsent", "accepted");
+  document.getElementById("cookie-banner").style.display = "none";
+  // Ici, tu peux activer les scripts AdSense ou Analytics par exemple
+}
+
+function rejectCookies() {
+  localStorage.setItem("cookieConsent", "rejected");
+  document.getElementById("cookie-banner").style.display = "none";
+  // Ici, tu désactives les scripts optionnels
+}
+
+window.onload = function () {
+  const consent = localStorage.getItem("cookieConsent");
+  if (consent === "accepted") {
+    document.getElementById("cookie-banner").style.display = "none";
+    // Activer les scripts ici si nécessaire
+  } else if (consent === "rejected") {
+    document.getElementById("cookie-banner").style.display = "none";
+    // Ne rien activer
+  }
+};
+</script>

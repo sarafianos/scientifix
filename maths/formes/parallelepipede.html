@@ -1,0 +1,210 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Calculateur de Parallélépipède</title>
+  <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background: #ffffff;
+      margin: 0;
+      padding: 0;
+    }
+    .container {
+      max-width: 700px;
+      margin: 40px auto;
+      background: #f9f9f9;
+      padding: 20px;
+      border-radius: 12px;
+      box-shadow: 0 0 12px rgba(0, 0, 0, 0.1);
+      text-align: center;
+    }
+    h1 {
+      color: #007BFF;
+    }
+    img {
+      max-width: 180px;
+      display: block;
+      margin: 10px auto 20px;
+    }
+    .formules {
+      background: #eef;
+      padding: 10px;
+      border-radius: 8px;
+      margin-bottom: 15px;
+    }
+    label, input {
+      display: block;
+      margin: 10px auto;
+      font-size: 1.1rem;
+    }
+    input[type="number"] {
+      padding: 10px;
+      width: 80%;
+    }
+    button {
+      padding: 10px 20px;
+      margin-top: 10px;
+      background-color: #007BFF;
+      color: white;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+    }
+    button:hover {
+      background-color: #0056b3;
+    }
+    .result {
+      margin-top: 20px;
+      font-size: 1.2rem;
+      color: #333;
+    }
+    #parallelepipedPlot {
+      width: 100%;
+      height: 450px;
+      margin-top: 40px;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>Calculateur de Parallélépipède</h1>
+    <img src="parallelepipede.svg" alt="Illustration d’un parallélépipède" />
+
+    <div class="formules">
+      Volume = a × b × c<br>
+      Surface = 2 × (a × b + a × c + b × c)
+    </div>
+
+    <label for="longueur">Longueur a:</label>
+    <input type="number" id="longueur" placeholder="Entrez la longueur a">
+
+    <label for="largeur">Largeur b:</label>
+    <input type="number" id="largeur" placeholder="Entrez la largeur b">
+
+    <label for="hauteur">Hauteur c:</label>
+    <input type="number" id="hauteur" placeholder="Entrez la hauteur c">
+
+    <button onclick="calculerParallelepipede()">Calculer</button>
+
+    <div class="result" id="result"></div>
+
+    <div id="parallelepipedPlot"></div>
+  </div>
+
+  <script>
+    function calculerParallelepipede() {
+      const longueur = parseFloat(document.getElementById('longueur').value);
+      const largeur = parseFloat(document.getElementById('largeur').value);
+      const hauteur = parseFloat(document.getElementById('hauteur').value);
+      const resultDiv = document.getElementById('result');
+
+      if (isNaN(longueur) || isNaN(largeur) || isNaN(hauteur) || longueur <= 0 || largeur <= 0 || hauteur <= 0) {
+        resultDiv.innerText = "Veuillez entrer des valeurs valides pour la longueur, largeur et hauteur.";
+        return;
+      }
+
+      const volume = longueur * largeur * hauteur;
+      const surface = 2 * (longueur * largeur + longueur * hauteur + largeur * hauteur);
+
+      resultDiv.innerHTML = `
+        Volume : ${volume.toFixed(2)} unités³<br>
+        Surface : ${surface.toFixed(2)} unités²
+      `;
+
+      // Coordonnées des sommets du parallélépipède selon les dimensions exactes
+      const x0 = -longueur / 2;
+      const x1 = longueur / 2;
+      const y0 = -largeur / 2;
+      const y1 = largeur / 2;
+      const z0 = -hauteur / 2;
+      const z1 = hauteur / 2;
+
+      // Définir les coordonnées des sommets
+      const vertices = [
+        [x0, y0, z0], [x1, y0, z0], [x1, y1, z0], [x0, y1, z0],
+        [x0, y0, z1], [x1, y0, z1], [x1, y1, z1], [x0, y1, z1]
+      ];
+
+      // Définir les faces du parallélépipède en fonction des indices des sommets
+      const faces = [
+        [0, 1, 2, 3], // Face inférieure
+        [4, 5, 6, 7], // Face supérieure
+        [0, 1, 5, 4], // Face avant
+        [1, 2, 6, 5], // Face droite
+        [2, 3, 7, 6], // Face arrière
+        [3, 0, 4, 7]  // Face gauche
+      ];
+
+      // Couleurs des faces
+      const colors = ['#3399ff', '#66ccff', '#ff6699', '#ffcc33', '#33cc33', '#ff3366'];
+
+      // Création des faces pour Plotly
+      const data = faces.map((face, index) => {
+        const x = face.map(i => vertices[i][0]);
+        const y = face.map(i => vertices[i][1]);
+        const z = face.map(i => vertices[i][2]);
+
+        return {
+          type: 'mesh3d',
+          x, y, z,
+          i: [0, 1, 2], j: [1, 2, 3], k: [2, 3, 0],
+          color: colors[index], // Couleur pour chaque face
+          opacity: 1, // Pas de transparence
+        };
+      });
+
+      // Ajuster les axes pour avoir la même échelle sur les trois axes
+      const maxDim = Math.max(longueur, largeur, hauteur);
+      const layout = {
+        margin: { t: 0, b: 0, l: 0, r: 0 },
+        scene: {
+          aspectmode: 'cube',
+          xaxis: { range: [-maxDim / 2, maxDim / 2], showaxes: false, showgrid: false, visible: false },
+          yaxis: { range: [-maxDim / 2, maxDim / 2], showaxes: false, showgrid: false, visible: false },
+          zaxis: { range: [-maxDim / 2, maxDim / 2], showaxes: false, showgrid: false, visible: false },
+        }
+      };
+
+      // Affichage du parallélépipède avec Plotly
+      Plotly.newPlot('parallelepipedPlot', data, layout, { responsive: true });
+    }
+  </script>
+</body>
+</html>
+
+
+<!-- Bannière de cookies RGPD -->
+<div id="cookie-banner" style="position: fixed; bottom: 0; left: 0; right: 0; background: #2c3e50; color: white; padding: 15px; text-align: center; z-index: 9999;">
+  <span>Ce site utilise des cookies pour améliorer votre expérience et afficher des publicités personnalisées (Google AdSense). En continuant, vous acceptez notre <a href="politique-confidentialite.html" style="color: #00bcd4; text-decoration: underline;">politique de confidentialité</a>.</span>
+  <br><br>
+  <button onclick="acceptCookies()" style="margin-right: 10px; padding: 6px 14px; background: #00c853; color: white; border: none; border-radius: 4px; cursor: pointer;">Accepter</button>
+  <button onclick="rejectCookies()" style="padding: 6px 14px; background: #c62828; color: white; border: none; border-radius: 4px; cursor: pointer;">Refuser</button>
+</div>
+
+<script>
+function acceptCookies() {
+  localStorage.setItem("cookieConsent", "accepted");
+  document.getElementById("cookie-banner").style.display = "none";
+  // Ici, tu peux activer les scripts AdSense ou Analytics par exemple
+}
+
+function rejectCookies() {
+  localStorage.setItem("cookieConsent", "rejected");
+  document.getElementById("cookie-banner").style.display = "none";
+  // Ici, tu désactives les scripts optionnels
+}
+
+window.onload = function () {
+  const consent = localStorage.getItem("cookieConsent");
+  if (consent === "accepted") {
+    document.getElementById("cookie-banner").style.display = "none";
+    // Activer les scripts ici si nécessaire
+  } else if (consent === "rejected") {
+    document.getElementById("cookie-banner").style.display = "none";
+    // Ne rien activer
+  }
+};
+</script>

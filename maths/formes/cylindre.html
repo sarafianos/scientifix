@@ -1,0 +1,231 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Calculateur de Cylindre</title>
+  <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background: #f9f9f9;
+      margin: 0;
+      padding: 0;
+    }
+    .container {
+      max-width: 700px;
+      margin: 40px auto;
+      background: white;
+      padding: 20px;
+      border-radius: 12px;
+      box-shadow: 0 0 12px rgba(0, 0, 0, 0.1);
+    }
+    h1 {
+      text-align: center;
+      color: #007BFF;
+    }
+    img {
+      display: block;
+      margin: 10px auto;
+      max-width: 200px;
+    }
+    .formules {
+      background: #eef;
+      padding: 10px;
+      border-radius: 8px;
+      text-align: center;
+      margin-bottom: 15px;
+    }
+    label {
+      display: block;
+      margin-top: 10px;
+      font-weight: bold;
+    }
+    input {
+      width: 90%;
+      padding: 10px;
+      font-size: 1rem;
+      margin-bottom: 10px;
+    }
+    button {
+      padding: 10px 20px;
+      background-color: #007BFF;
+      color: white;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+      font-size: 1rem;
+      display: block;
+      margin: 10px auto 20px auto;
+    }
+    button:hover {
+      background-color: #0056b3;
+    }
+    .result {
+      text-align: center;
+      font-size: 1.1rem;
+      color: #333;
+    }
+    #graph {
+      margin-top: 30px;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>Calculateur de Cylindre</h1>
+    <img src="cylindre.svg" alt="Illustration d’un cylindre" />
+
+    <div class="formules">
+      Aire = 2πr(h + r) <br>
+      Volume = πr²h
+    </div>
+
+    <label for="rayon">Rayon (r) :</label>
+    <input type="number" id="rayon" placeholder="Entrez le rayon" />
+
+    <label for="hauteur">Hauteur (h) :</label>
+    <input type="number" id="hauteur" placeholder="Entrez la hauteur" />
+
+    <button onclick="calculerCylindre()">Calculer</button>
+
+    <div class="result" id="result"></div>
+
+    <div id="graph" style="height: 500px;"></div>
+  </div>
+
+  <script>
+    function calculerCylindre() {
+      const r = parseFloat(document.getElementById('rayon').value);
+      const h = parseFloat(document.getElementById('hauteur').value);
+      const resultDiv = document.getElementById('result');
+
+      if (isNaN(r) || isNaN(h) || r <= 0 || h <= 0) {
+        resultDiv.innerText = "Veuillez entrer des valeurs valides.";
+        return;
+      }
+
+      const aire = 2 * Math.PI * r * (h + r);
+      const volume = Math.PI * r * r * h;
+      resultDiv.innerHTML = `
+        Aire : ${aire.toFixed(2)} unités²<br>
+        Volume : ${volume.toFixed(2)} unités³
+      `;
+
+      tracerCylindre(r, h);
+    }
+
+    function tracerCylindre(r, h) {
+	  const resolution = 50;
+	  const theta = [...Array(resolution).keys()].map(i => 2 * Math.PI * i / (resolution - 1));
+	  const z = [...Array(resolution).keys()].map(i => i * h / (resolution - 1));
+
+	  let x = [], y = [], zgrid = [];
+
+	  for (let zi = 0; zi < z.length; zi++) {
+		let xRow = [], yRow = [], zRow = [];
+		for (let ti = 0; ti < theta.length; ti++) {
+		  xRow.push(r * Math.cos(theta[ti]));
+		  yRow.push(r * Math.sin(theta[ti]));
+		  zRow.push(z[zi] - h / 2);
+		}
+		x.push(xRow);
+		y.push(yRow);
+		zgrid.push(zRow);
+	  }
+
+	  // Surface latérale
+	  const surface = {
+		type: 'surface',
+		x: x,
+		y: y,
+		z: zgrid,
+		colorscale: [[0, '#3399ff'], [1, '#3399ff']],
+		showscale: false,
+		lighting: { ambient: 0.5, diffuse: 1 },
+		lightposition: { x: 100, y: 200, z: 0 },
+		opacity: 1
+	  };
+
+	  // Disque supérieur
+	  const topDisk = {
+		type: 'mesh3d',
+		x: theta.map(t => r * Math.cos(t)).concat([0]),
+		y: theta.map(t => r * Math.sin(t)).concat([0]),
+		z: Array(resolution).fill(h / 2).concat([h / 2]),
+		i: [...Array(resolution - 1).keys()],
+		j: [...Array(resolution - 1).keys()].map(i => i + 1),
+		k: Array(resolution - 1).fill(resolution),
+		color: '#3399ff',
+		opacity: 1,
+		flatshading: true,
+		showscale: false
+	  };
+
+	  // Disque inférieur
+	  const bottomDisk = {
+		type: 'mesh3d',
+		x: theta.map(t => r * Math.cos(t)).concat([0]),
+		y: theta.map(t => r * Math.sin(t)).concat([0]),
+		z: Array(resolution).fill(-h / 2).concat([-h / 2]),
+		i: [...Array(resolution - 1).keys()],
+		j: [...Array(resolution - 1).keys()].map(i => i + 1),
+		k: Array(resolution - 1).fill(resolution),
+		color: '#3399ff',
+		opacity: 1,
+		flatshading: true,
+		showscale: false
+	  };
+
+  const layout = {
+    margin: { t: 0, b: 0, l: 0, r: 0 },
+    scene: {
+      xaxis: { visible: false, showgrid: false },
+      yaxis: { visible: false, showgrid: false },
+      zaxis: { visible: false, showgrid: false },
+      aspectmode: 'data',
+      camera: {
+        eye: { x: 1.5, y: 1.5, z: 1.5 }
+      }
+    }
+  };
+
+  Plotly.newPlot('graph', [surface, topDisk, bottomDisk], layout);
+}
+  </script>
+</body>
+</html>
+
+
+<!-- Bannière de cookies RGPD -->
+<div id="cookie-banner" style="position: fixed; bottom: 0; left: 0; right: 0; background: #2c3e50; color: white; padding: 15px; text-align: center; z-index: 9999;">
+  <span>Ce site utilise des cookies pour améliorer votre expérience et afficher des publicités personnalisées (Google AdSense). En continuant, vous acceptez notre <a href="politique-confidentialite.html" style="color: #00bcd4; text-decoration: underline;">politique de confidentialité</a>.</span>
+  <br><br>
+  <button onclick="acceptCookies()" style="margin-right: 10px; padding: 6px 14px; background: #00c853; color: white; border: none; border-radius: 4px; cursor: pointer;">Accepter</button>
+  <button onclick="rejectCookies()" style="padding: 6px 14px; background: #c62828; color: white; border: none; border-radius: 4px; cursor: pointer;">Refuser</button>
+</div>
+
+<script>
+function acceptCookies() {
+  localStorage.setItem("cookieConsent", "accepted");
+  document.getElementById("cookie-banner").style.display = "none";
+  // Ici, tu peux activer les scripts AdSense ou Analytics par exemple
+}
+
+function rejectCookies() {
+  localStorage.setItem("cookieConsent", "rejected");
+  document.getElementById("cookie-banner").style.display = "none";
+  // Ici, tu désactives les scripts optionnels
+}
+
+window.onload = function () {
+  const consent = localStorage.getItem("cookieConsent");
+  if (consent === "accepted") {
+    document.getElementById("cookie-banner").style.display = "none";
+    // Activer les scripts ici si nécessaire
+  } else if (consent === "rejected") {
+    document.getElementById("cookie-banner").style.display = "none";
+    // Ne rien activer
+  }
+};
+</script>

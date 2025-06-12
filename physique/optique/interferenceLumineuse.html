@@ -1,0 +1,219 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <title>Interférences à Deux Sources Laser</title>
+  <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background: #fff;
+      text-align: center;
+    }
+    #plot {
+      margin: auto;
+      width: 90%;
+      height: 500px;
+    }
+    input {
+      margin: 5px;
+      padding: 5px;
+      width: 120px;
+    }
+  </style>
+</head>
+<body>
+  <h2>Interférences Lumineuses — Deux Sources Laser</h2>
+
+  <div>
+    <label>Longueur d’onde λ (nm):</label>
+    <input type="number" id="lambda" value="632" />
+    <label>Distance entre les sources d (mm):</label>
+    <input type="number" id="distance" value="2" />
+    <label>Distance à l’écran L (cm):</label>
+    <input type="number" id="L" value="100" />
+    <button onclick="startAnimation()">Lancer l'animation</button>
+  </div>
+
+  <div id="plot"></div>
+
+  <script>
+    let interval;
+    function startAnimation() {
+      clearInterval(interval);
+      const λ = parseFloat(document.getElementById('lambda').value) * 1e-9;
+      const d = parseFloat(document.getElementById('distance').value) * 1e-3;
+      const L = parseFloat(document.getElementById('L').value) * 1e-2;
+
+      const c = 3e8;
+      const f = c / λ;
+      const ω = 2 * Math.PI * f;
+
+      const S1 = [-d / 2, 0];
+      const S2 = [d / 2, 0];
+      const X = [], Y = [];
+
+      for (let x = -0.05; x <= 0.05; x += 0.001) {
+        X.push(x);
+        Y.push(L);
+      }
+
+      let t = 0;
+      interval = setInterval(() => {
+        const r1 = X.map((x) => Math.sqrt((x - S1[0])**2 + (L - S1[1])**2));
+        const r2 = X.map((x) => Math.sqrt((x - S2[0])**2 + (L - S2[1])**2));
+        const E = r1.map((r, i) =><!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <title>Interférences lumineuses - Deux sources laser</title>
+  <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
+  <style>
+    body {
+      font-family: sans-serif;
+      background: white;
+      padding: 20px;
+    }
+    canvas {
+      border: 1px solid #ccc;
+      display: block;
+      margin-bottom: 20px;
+    }
+    .graph-container {
+      display: flex;
+      flex-direction: column;
+      gap: 20px;
+    }
+  </style>
+</head>
+<body>
+  <h1>Interférences lumineuses - Deux sources laser</h1>
+  <p>Visualisation vectorielle et sinusoïdales des deux ondes et de leur superposition.</p>
+
+  <canvas id="animation" width="600" height="200"></canvas>
+
+  <div class="graph-container">
+    <div id="graph1"></div>
+    <div id="graph2"></div>
+  </div>
+
+  <script>
+    const canvas = document.getElementById("animation");
+    const ctx = canvas.getContext("2d");
+
+    const width = canvas.width;
+    const height = canvas.height;
+    const source1 = { x: 150, y: height / 2 };
+    const source2 = { x: 450, y: height / 2 };
+    const wavelength = 50;
+    const amplitude = 40;
+    let t = 0;
+
+    function drawVectorScene(time) {
+      ctx.clearRect(0, 0, width, height);
+
+      // Draw sources
+      ctx.fillStyle = "#3399ff";
+      ctx.beginPath();
+      ctx.arc(source1.x, source1.y, 5, 0, 2 * Math.PI);
+      ctx.fill();
+      ctx.beginPath();
+      ctx.arc(source2.x, source2.y, 5, 0, 2 * Math.PI);
+      ctx.fill();
+
+      // Animation vectorielle (phases)
+      const omega = 0.1;
+      const phase1 = Math.sin(omega * time);
+      const phase2 = Math.sin(omega * time + Math.PI / 2);
+
+      ctx.strokeStyle = "red";
+      ctx.beginPath();
+      ctx.moveTo(source1.x, source1.y);
+      ctx.lineTo(source1.x, source1.y - amplitude * phase1);
+      ctx.stroke();
+
+      ctx.strokeStyle = "green";
+      ctx.beginPath();
+      ctx.moveTo(source2.x, source2.y);
+      ctx.lineTo(source2.x, source2.y - amplitude * phase2);
+      ctx.stroke();
+    }
+
+    function animate() {
+      drawVectorScene(t);
+
+      // Calcul sinusoïdes
+      const x = [];
+      const y1 = [];
+      const y2 = [];
+      const ySum = [];
+      for (let i = 0; i <= 200; i++) {
+        const xi = i / 20;
+        const y1i = Math.sin(2 * Math.PI * xi - 0.05 * t);
+        const y2i = Math.sin(2 * Math.PI * xi - 0.05 * t + Math.PI / 2);
+        x.push(xi);
+        y1.push(y1i);
+        y2.push(y2i);
+        ySum.push(y1i + y2i);
+      }
+
+      Plotly.react("graph1", [
+        { x, y: y1, name: "Source 1", mode: "lines", line: { color: "red" } },
+        { x, y: y2, name: "Source 2", mode: "lines", line: { color: "green" } }
+      ], {
+        title: "Ondes des deux sources",
+        yaxis: { range: [-2, 2], title: "Amplitude" },
+        xaxis: { title: "Position" }
+      });
+
+      Plotly.react("graph2", [
+        { x, y: ySum, name: "Résultante", mode: "lines", line: { color: "blue" } }
+      ], {
+        title: "Interférence (somme des deux ondes)",
+        yaxis: { range: [-2, 2], title: "Amplitude" },
+        xaxis: { title: "Position" }
+      });
+
+      t += 1;
+      requestAnimationFrame(animate);
+    }
+
+    animate();
+  </script>
+</body>
+</html>
+
+
+
+<!-- Bannière de cookies RGPD -->
+<div id="cookie-banner" style="position: fixed; bottom: 0; left: 0; right: 0; background: #2c3e50; color: white; padding: 15px; text-align: center; z-index: 9999;">
+  <span>Ce site utilise des cookies pour améliorer votre expérience et afficher des publicités personnalisées (Google AdSense). En continuant, vous acceptez notre <a href="politique-confidentialite.html" style="color: #00bcd4; text-decoration: underline;">politique de confidentialité</a>.</span>
+  <br><br>
+  <button onclick="acceptCookies()" style="margin-right: 10px; padding: 6px 14px; background: #00c853; color: white; border: none; border-radius: 4px; cursor: pointer;">Accepter</button>
+  <button onclick="rejectCookies()" style="padding: 6px 14px; background: #c62828; color: white; border: none; border-radius: 4px; cursor: pointer;">Refuser</button>
+</div>
+
+<script>
+function acceptCookies() {
+  localStorage.setItem("cookieConsent", "accepted");
+  document.getElementById("cookie-banner").style.display = "none";
+  // Ici, tu peux activer les scripts AdSense ou Analytics par exemple
+}
+
+function rejectCookies() {
+  localStorage.setItem("cookieConsent", "rejected");
+  document.getElementById("cookie-banner").style.display = "none";
+  // Ici, tu désactives les scripts optionnels
+}
+
+window.onload = function () {
+  const consent = localStorage.getItem("cookieConsent");
+  if (consent === "accepted") {
+    document.getElementById("cookie-banner").style.display = "none";
+    // Activer les scripts ici si nécessaire
+  } else if (consent === "rejected") {
+    document.getElementById("cookie-banner").style.display = "none";
+    // Ne rien activer
+  }
+};
+</script>

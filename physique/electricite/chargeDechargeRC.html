@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <title>Circuit RC avec interrupteur</title>
+  <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
+  <style>
+    body { font-family: Arial, sans-serif; background: white; padding: 20px; }
+    svg { border: 1px solid #ccc; margin-bottom: 20px; }
+    .controls input { margin: 5px; }
+  </style>
+</head>
+<body>
+
+<h2>Circuit RC : Charge et décharge d’un condensateur</h2>
+
+<div class="controls">
+  <label>Résistance (Ω) : <input type="number" id="resistance" value="1000"></label>
+  <label>Capacité (F) : <input type="number" id="capacite" value="0.001"></label>
+  <label>Tension (V) : <input type="number" id="tension" value="5"></label>
+  <label><input type="checkbox" id="interrupteur"> Interrupteur fermé</label>
+  <button onclick="lancerSimulation()">Lancer la simulation</button>
+</div>
+
+<svg width="600" height="200" id="schema">
+  <!-- Batterie -->
+  <line x1="50" y1="100" x2="80" y2="100" stroke="black" stroke-width="2" />
+  <line x1="80" y1="85" x2="80" y2="115" stroke="black" stroke-width="2" />
+  <line x1="85" y1="90" x2="85" y2="110" stroke="black" stroke-width="1" />
+  
+  <!-- Connexion batterie-condensateur-->
+  <line x1="85" y1="100" x2="100" y2="100" stroke="black" stroke-width="2" />
+
+  <!-- Interrupteur -->
+  <circle cx="100" cy="100" r="3" fill="black" />
+  <circle cx="130" cy="100" r="3" fill="black" />
+  <line id="switchLine" x1="100" y1="100" x2="130" y2="70" stroke="black" stroke-width="2" />
+
+  <!-- Connexion Interrupteur-resistance-->
+  <line x1="130" y1="100" x2="150" y2="100" stroke="black" stroke-width="2" />
+
+  <!-- Résistance -->
+  <rect x="150" y="90" width="40" height="20" stroke="black" fill="none" />
+  <text x="165" y="105" font-size="12">R</text>
+
+  <!-- Connexion Resistance-Capacité-->
+  <line x1="190" y1="100" x2="240" y2="100" stroke="black" stroke-width="2" />
+
+  <!-- Condensateur -->
+  <line x1="240" y1="80" x2="240" y2="120" stroke="black" stroke-width="2" />
+  <line x1="250" y1="80" x2="250" y2="120" stroke="black" stroke-width="2" />
+  <text x="240" y="75" font-size="12">C</text>
+
+  <!-- Connexion jusqu’au bout -->
+  <line x1="250" y1="100" x2="300" y2="100" stroke="black" stroke-width="2" />
+  <!-- Retour bas -->
+  <line x1="300" y1="100" x2="300" y2="150" stroke="black" stroke-width="2" />
+  <line x1="300" y1="150" x2="50" y2="150" stroke="black" stroke-width="2" />
+  <line x1="50" y1="150" x2="50" y2="100" stroke="black" stroke-width="2" />
+</svg>
+
+<div id="graphique" style="width:100%;max-width:600px;height:400px;"></div>
+
+<script>
+  let intervalId;
+
+  function lancerSimulation() {
+    clearInterval(intervalId);
+
+    const R = parseFloat(document.getElementById("resistance").value);
+    const C = parseFloat(document.getElementById("capacite").value);
+    const V = parseFloat(document.getElementById("tension").value);
+    const charge = document.getElementById("interrupteur").checked;
+
+    // Animation de l'interrupteur
+    document.getElementById("switchLine").setAttribute("x2", charge ? 130 : 130);
+    document.getElementById("switchLine").setAttribute("y2", charge ? 100 : 70);
+
+    const tau = R * C;
+    const dt = 0.05;
+    const maxTime = 5 * tau;
+    let t = 0;
+    let tData = [], vData = [];
+
+    intervalId = setInterval(() => {
+      let v;
+      if (charge) {
+        v = V * (1 - Math.exp(-t / tau));
+      } else {
+        v = V * Math.exp(-t / tau);
+      }
+
+      tData.push(t);
+      vData.push(v);
+
+      Plotly.newPlot("graphique", [{
+        x: tData,
+        y: vData,
+        mode: "lines",
+        name: "V(t)"
+      }], {
+        title: "Tension aux bornes du condensateur",
+        xaxis: { title: "Temps (s)" },
+        yaxis: { title: "Tension (V)", range: [0, V] }
+      });
+
+      t += dt;
+      if (t > maxTime) clearInterval(intervalId);
+    }, 50);
+  }
+</script>
+
+</body>
+</html>
+
+
+<!-- Bannière de cookies RGPD -->
+<div id="cookie-banner" style="position: fixed; bottom: 0; left: 0; right: 0; background: #2c3e50; color: white; padding: 15px; text-align: center; z-index: 9999;">
+  <span>Ce site utilise des cookies pour améliorer votre expérience et afficher des publicités personnalisées (Google AdSense). En continuant, vous acceptez notre <a href="politique-confidentialite.html" style="color: #00bcd4; text-decoration: underline;">politique de confidentialité</a>.</span>
+  <br><br>
+  <button onclick="acceptCookies()" style="margin-right: 10px; padding: 6px 14px; background: #00c853; color: white; border: none; border-radius: 4px; cursor: pointer;">Accepter</button>
+  <button onclick="rejectCookies()" style="padding: 6px 14px; background: #c62828; color: white; border: none; border-radius: 4px; cursor: pointer;">Refuser</button>
+</div>
+
+<script>
+function acceptCookies() {
+  localStorage.setItem("cookieConsent", "accepted");
+  document.getElementById("cookie-banner").style.display = "none";
+  // Ici, tu peux activer les scripts AdSense ou Analytics par exemple
+}
+
+function rejectCookies() {
+  localStorage.setItem("cookieConsent", "rejected");
+  document.getElementById("cookie-banner").style.display = "none";
+  // Ici, tu désactives les scripts optionnels
+}
+
+window.onload = function () {
+  const consent = localStorage.getItem("cookieConsent");
+  if (consent === "accepted") {
+    document.getElementById("cookie-banner").style.display = "none";
+    // Activer les scripts ici si nécessaire
+  } else if (consent === "rejected") {
+    document.getElementById("cookie-banner").style.display = "none";
+    // Ne rien activer
+  }
+};
+</script>

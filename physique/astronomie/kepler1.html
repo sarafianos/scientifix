@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <title>Première Loi de Kepler</title>
+  <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background: white;
+      text-align: center;
+      padding: 20px;
+    }
+    .controls {
+      margin-bottom: 20px;
+    }
+    label {
+      margin-right: 10px;
+    }
+    input[type="range"] {
+      width: 300px;
+    }
+    #description {
+      margin-bottom: 20px;
+      font-size: 1.1em;
+      max-width: 700px;
+      margin-left: auto;
+      margin-right: auto;
+    }
+  </style>
+</head>
+<body>
+  <h2>Première Loi de Kepler</h2>
+
+  <div id="description">
+    La <strong>première loi de Kepler</strong>, ou <em>loi des orbites</em>, affirme que :
+    <br><br>
+    <strong>« Les planètes décrivent des orbites elliptiques autour du Soleil,
+    et le Soleil occupe l’un des foyers de cette ellipse. »</strong>
+    <br><br>
+    Cette loi montre que le mouvement des planètes n'est pas circulaire mais bien elliptique, ce qui était une découverte fondamentale à l'époque de Kepler.
+  </div>
+
+  <div class="controls">
+    <label>Excentricité (e): <input type="range" id="ecc" min="0" max="0.9" step="0.01" value="0.4" /></label>
+    <span id="eccVal">0.4</span>
+    <br><br>
+    <label>Demi-grand axe (a): <input type="range" id="a" min="1" max="10" step="0.1" value="5" /></label>
+    <span id="aVal">5.0</span>
+    <br><br>
+    <button onclick="startAnimation()">Lancer l’animation</button>
+  </div>
+
+  <div id="plot" style="width:100%; max-width:700px; height:500px; margin:auto;"></div>
+
+  <script>
+    let eccSlider = document.getElementById("ecc");
+    let eccVal = document.getElementById("eccVal");
+    let aSlider = document.getElementById("a");
+    let aVal = document.getElementById("aVal");
+
+    eccSlider.oninput = () => {
+      eccVal.textContent = eccSlider.value;
+      plotOrbit();
+    };
+    aSlider.oninput = () => {
+      aVal.textContent = aSlider.value;
+      plotOrbit();
+    };
+
+    function polarToCartesian(r, theta) {
+      return [r * Math.cos(theta), r * Math.sin(theta)];
+    }
+
+    let planetTrace, planetIndex = 0, timer;
+
+    function plotOrbit() {
+      const e = parseFloat(eccSlider.value);
+      const a = parseFloat(aSlider.value);
+      const b = a * Math.sqrt(1 - e * e);
+      const focus = e * a;
+
+      let theta = [];
+      let orbitX = [], orbitY = [];
+
+      for (let i = 0; i <= 360; i++) {
+        let t = i * Math.PI / 180;
+        theta.push(t);
+        orbitX.push(a * Math.cos(t) - focus);
+        orbitY.push(b * Math.sin(t));
+      }
+
+      const ellipse = {
+        x: orbitX,
+        y: orbitY,
+        mode: 'lines',
+        name: 'Orbite',
+        line: { color: '#3399ff' }
+      };
+
+      const sun = {
+        x: [0],
+        y: [0],
+        mode: 'markers+text',
+        text: ['Soleil'],
+        textposition: 'bottom center',
+        marker: { color: 'orange', size: 15 },
+        name: 'Soleil'
+      };
+
+      planetIndex = 0;
+      planetTrace = {
+        x: [orbitX[planetIndex]],
+        y: [orbitY[planetIndex]],
+        mode: 'markers',
+        marker: { color: 'red', size: 10 },
+        name: 'Planète'
+      };
+
+      Plotly.newPlot("plot", [ellipse, sun, planetTrace], {
+        margin: { t: 0 },
+        xaxis: { scaleanchor: 'y', title: "x (UA)", range: [-a * 1.5, a * 1.5] },
+        yaxis: { title: "y (UA)", range: [-a * 1.5, a * 1.5] },
+        showlegend: false
+      });
+
+      planetTrace._orbitX = orbitX;
+      planetTrace._orbitY = orbitY;
+    }
+
+    function startAnimation() {
+      if (timer) clearInterval(timer);
+      planetIndex = 0;
+      timer = setInterval(() => {
+        if (planetIndex >= planetTrace._orbitX.length) planetIndex = 0;
+        planetTrace.x = [planetTrace._orbitX[planetIndex]];
+        planetTrace.y = [planetTrace._orbitY[planetIndex]];
+        Plotly.restyle("plot", { x: [planetTrace.x], y: [planetTrace.y] }, 2);
+        planetIndex++;
+      }, 30);
+    }
+
+    plotOrbit();
+  </script>
+</body>
+</html>

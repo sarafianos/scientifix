@@ -1,0 +1,218 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Pyramide 3D</title>
+  <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background-color: #f4f4f4;
+      margin: 0;
+      padding: 0;
+      text-align: center;
+    }
+
+    .container {
+      max-width: 800px;
+      margin: 30px auto;
+      background: white;
+      padding: 20px;
+      border-radius: 10px;
+      box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+    }
+
+    h1 {
+      color: #007BFF;
+    }
+
+    img {
+      max-width: 200px;
+      margin: 10px auto;
+      display: block;
+    }
+
+    .input-container {
+      margin-bottom: 20px;
+    }
+
+    input {
+      padding: 10px;
+      margin: 10px auto;
+      font-size: 1rem;
+      width: 80%;
+      max-width: 300px;
+      display: block;
+    }
+
+    button {
+      padding: 10px 20px;
+      background-color: #007BFF;
+      color: white;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+      font-size: 1rem;
+    }
+
+    button:hover {
+      background-color: #0056b3;
+    }
+
+    #graph {
+      width: 100%;
+      height: 500px;
+      margin-top: 30px;
+    }
+
+    .result {
+      margin-top: 20px;
+      font-size: 1.1rem;
+    }
+
+    .formula {
+      background-color: #eef;
+      padding: 10px;
+      border-radius: 8px;
+      display: inline-block;
+      margin-top: 10px;
+      font-family: "Courier New", monospace;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="container">
+    <h1>Pyramide à Base Carrée</h1>
+    <img src="pyramide.svg" alt="Illustration de la pyramide" />
+
+    <div class="input-container">
+      <input type="number" id="base" placeholder="Longueur de la base (a)" />
+      <input type="number" id="hauteur" placeholder="Hauteur b" />
+      <button onclick="calculerEtAfficher()">Calculer et afficher</button>
+    </div>
+
+    <div class="result" id="formules">
+      <div class="formula">Volume = (a² × b) / 3</div><br>
+      <div class="formula">Surface = a² + 2 × a × b</div>
+    </div>
+
+    <div class="result" id="resultats"></div>
+    <div id="graph"></div>
+  </div>
+
+  <script>
+    function calculerEtAfficher() {
+      const base = parseFloat(document.getElementById('base').value);
+      const hauteur = parseFloat(document.getElementById('hauteur').value);
+
+      if (isNaN(base) || isNaN(hauteur) || base <= 0 || hauteur <= 0) {
+        alert("Veuillez entrer des valeurs valides pour la base et la hauteur.");
+        return;
+      }
+
+      const volume = (Math.pow(base, 2) * hauteur) / 3;
+      const apothem = Math.sqrt(Math.pow(base / 2, 2) + Math.pow(hauteur, 2));
+      const surface = Math.pow(base, 2) + 2 * base * apothem;
+
+      document.getElementById("resultats").innerHTML = `
+        Volume : ${volume.toFixed(2)} unités³<br>
+        Surface : ${surface.toFixed(2)} unités²
+      `;
+
+      afficherPyramide3D(base, hauteur);
+    }
+
+    function afficherPyramide3D(base, hauteur) {
+      const halfBase = base / 2;
+
+      const vertices = [
+        [-halfBase, -halfBase, 0],
+        [halfBase, -halfBase, 0],
+        [halfBase, halfBase, 0],
+        [-halfBase, halfBase, 0],
+        [0, 0, hauteur]
+      ];
+
+      const faces = [
+        [0, 1, 4],
+        [1, 2, 4],
+        [2, 3, 4],
+        [3, 0, 4],
+        [0, 1, 2, 3]
+      ];
+
+      const plotData = [];
+      faces.forEach(face => {
+        const x = face.map(i => vertices[i][0]);
+        const y = face.map(i => vertices[i][1]);
+        const z = face.map(i => vertices[i][2]);
+
+        if (face.length === 4) {
+          x.push(x[0]); y.push(y[0]); z.push(z[0]);
+        }
+
+        plotData.push({
+          type: 'mesh3d',
+          x: x,
+          y: y,
+          z: z,
+          color: '#3399ff',
+          opacity: 1,
+          flatshading: true
+        });
+      });
+
+      const layout = {
+        scene: {
+          aspectmode: 'cube',
+          xaxis: { visible: false, showgrid: false },
+          yaxis: { visible: false, showgrid: false },
+          zaxis: { visible: false, showgrid: false },
+          camera: { eye: { x: 1.2, y: 1.2, z: 1.2 } }
+        },
+        margin: { t: 0, b: 0, l: 0, r: 0 },
+        paper_bgcolor: 'white'
+      };
+
+      Plotly.newPlot('graph', plotData, layout);
+    }
+  </script>
+
+</body>
+</html>
+
+
+<!-- Bannière de cookies RGPD -->
+<div id="cookie-banner" style="position: fixed; bottom: 0; left: 0; right: 0; background: #2c3e50; color: white; padding: 15px; text-align: center; z-index: 9999;">
+  <span>Ce site utilise des cookies pour améliorer votre expérience et afficher des publicités personnalisées (Google AdSense). En continuant, vous acceptez notre <a href="politique-confidentialite.html" style="color: #00bcd4; text-decoration: underline;">politique de confidentialité</a>.</span>
+  <br><br>
+  <button onclick="acceptCookies()" style="margin-right: 10px; padding: 6px 14px; background: #00c853; color: white; border: none; border-radius: 4px; cursor: pointer;">Accepter</button>
+  <button onclick="rejectCookies()" style="padding: 6px 14px; background: #c62828; color: white; border: none; border-radius: 4px; cursor: pointer;">Refuser</button>
+</div>
+
+<script>
+function acceptCookies() {
+  localStorage.setItem("cookieConsent", "accepted");
+  document.getElementById("cookie-banner").style.display = "none";
+  // Ici, tu peux activer les scripts AdSense ou Analytics par exemple
+}
+
+function rejectCookies() {
+  localStorage.setItem("cookieConsent", "rejected");
+  document.getElementById("cookie-banner").style.display = "none";
+  // Ici, tu désactives les scripts optionnels
+}
+
+window.onload = function () {
+  const consent = localStorage.getItem("cookieConsent");
+  if (consent === "accepted") {
+    document.getElementById("cookie-banner").style.display = "none";
+    // Activer les scripts ici si nécessaire
+  } else if (consent === "rejected") {
+    document.getElementById("cookie-banner").style.display = "none";
+    // Ne rien activer
+  }
+};
+</script>

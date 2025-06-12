@@ -1,0 +1,269 @@
+<!DOCTYPE html> 
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Calculateur Triangle</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      margin: 0;
+      padding: 0;
+      background-color: #f4f4f4;
+    }
+    .container {
+      max-width: 600px;
+      margin: 40px auto;
+      background: #fff;
+      padding: 20px;
+      border-radius: 10px;
+      box-shadow: 0 0 10px rgba(0,0,0,0.1);
+      text-align: center;
+    }
+    h1, h2 {
+      color: #007BFF;
+    }
+    label, input {
+      display: block;
+      margin: 10px auto;
+      font-size: 1.1rem;
+    }
+    input[type="number"] {
+      padding: 10px;
+      width: 80%;
+    }
+    button {
+      padding: 10px 20px;
+      margin-top: 15px;
+      background-color: #007BFF;
+      color: white;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+    }
+    button:hover {
+      background-color: #0056b3;
+    }
+    .result {
+      margin-top: 20px;
+      font-size: 1.2rem;
+      color: #333;
+    }
+    .canvas-container {
+      display: flex;
+      justify-content: center;
+      margin-top: 30px;
+      overflow-x: auto;
+      padding: 10px;
+    }
+    canvas {
+      border: 1px solid #ddd;
+      background: #fff;
+      max-width: 100%;
+    }
+    .illustration {
+      margin: 20px auto;
+      text-align: center;
+    }
+    .illustration img {
+      max-width: 100%;
+      height: auto;
+      border-radius: 8px;
+      box-shadow: 0 0 5px rgba(0,0,0,0.1);
+    }
+    .formule {
+      font-style: italic;
+      margin-top: 10px;
+      color: #555;
+    }
+    .formule code {
+      background: #eef;
+      padding: 2px 5px;
+      border-radius: 4px;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>Calculateur de Triangle</h1>
+    <div class="illustration">
+      <img src="triangleRectangle.svg" alt="Triangle rectangle avec hauteur">
+    </div>
+    <label for="base">Base :</label>
+    <input type="number" id="base" placeholder="Entrez la base">
+    <label for="hauteur">Hauteur :</label>
+    <input type="number" id="hauteur" placeholder="Entrez la hauteur">
+    <div class="formule">
+      Formule de la surface : <code>(base × hauteur) ÷ 2</code><br>
+      Formule du périmètre : <code>base + hauteur + √(base² + hauteur²)</code>
+    </div>
+    <button onclick="calculerTriangle()">Calculer aire et périmètre</button>
+    <div class="result" id="result"></div>
+    <div class="canvas-container">
+      <canvas id="triangleCanvas" width="500" height="400"></canvas>
+    </div>
+
+    <h2>Triangle quelconque</h2>
+    <div class="illustration">
+      <img src="triangle.svg" alt="Triangle quelconque illustré">
+    </div>
+    <label for="a">Côté a :</label>
+    <input type="number" id="a" placeholder="Entrez le côté a">
+    <label for="b">Côté b :</label>
+    <input type="number" id="b" placeholder="Entrez le côté b">
+    <label for="c">Côté c :</label>
+    <input type="number" id="c" placeholder="Entrez le côté c">
+    <div class="formule">
+      Formule de Héron : <code>√[s(s - a)(s - b)(s - c)]</code> où <code>s = (a + b + c)/2</code>
+    </div>
+    <button onclick="calculerTriangleQuelconque()">Calculer aire et périmètre</button>
+    <div class="result" id="resultHeron"></div>
+    <div class="canvas-container">
+      <canvas id="triangleGenCanvas" width="600" height="450"></canvas>
+    </div>
+  </div>
+
+  <script>
+    function calculerTriangle() {
+      const base = parseFloat(document.getElementById('base').value);
+      const hauteur = parseFloat(document.getElementById('hauteur').value);
+      const resultDiv = document.getElementById('result');
+
+      if (isNaN(base) || isNaN(hauteur) || base <= 0 || hauteur <= 0) {
+        resultDiv.innerText = "Veuillez entrer des valeurs valides pour la base et la hauteur.";
+        return;
+      }
+
+      const surface = 0.5 * base * hauteur;
+      const hypotenuse = Math.sqrt(base * base + hauteur * hauteur);
+      const perimetre = base + hauteur + hypotenuse;
+
+      resultDiv.innerHTML = `Surface : ${surface.toFixed(2)} unités²<br>Périmètre : ${perimetre.toFixed(2)} unités`;
+
+      dessinerTriangle(base, hauteur);
+    }
+
+    function dessinerTriangle(base, hauteur) {
+      const canvas = document.getElementById("triangleCanvas");
+      const ctx = canvas.getContext("2d");
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+      const maxWidth = canvas.width - 100;
+      const maxHeight = canvas.height - 100;
+      const scale = Math.min(maxWidth / base, maxHeight / hauteur);
+
+      const scaledBase = base * scale;
+      const scaledHeight = hauteur * scale;
+
+      const startX = (canvas.width - scaledBase) / 2;
+      const startY = (canvas.height + scaledHeight) / 2;
+
+      ctx.beginPath();
+      ctx.moveTo(startX, startY);
+      ctx.lineTo(startX + scaledBase, startY);
+      ctx.lineTo(startX, startY - scaledHeight);
+      ctx.closePath();
+
+      ctx.strokeStyle = "#007BFF";
+      ctx.lineWidth = 2;
+      ctx.stroke();
+
+      ctx.font = "14px Arial";
+      ctx.fillStyle = "#000";
+      ctx.fillText(`base = ${base}`, startX + scaledBase / 2 - 30, startY + 20);
+      ctx.fillText(`hauteur = ${hauteur}`, startX - 70, startY - scaledHeight / 2);
+    }
+
+    function calculerTriangleQuelconque() {
+      const a = parseFloat(document.getElementById('a').value);
+      const b = parseFloat(document.getElementById('b').value);
+      const c = parseFloat(document.getElementById('c').value);
+      const resultHeron = document.getElementById('resultHeron');
+
+      if (isNaN(a) || isNaN(b) || isNaN(c) || a <= 0 || b <= 0 || c <= 0) {
+        resultHeron.innerText = "Veuillez entrer des longueurs valides pour les trois côtés.";
+        return;
+      }
+
+      const s = (a + b + c) / 2;
+      const aire = Math.sqrt(s * (s - a) * (s - b) * (s - c));
+      const perimetre = a + b + c;
+
+      if (isNaN(aire)) {
+        resultHeron.innerText = "Les longueurs saisies ne forment pas un triangle valide.";
+        return;
+      }
+
+      resultHeron.innerHTML = `Aire : ${aire.toFixed(2)} unités²<br>Périmètre : ${perimetre.toFixed(2)} unités`;
+
+      dessinerTriangleQuelconque(a, b, c);
+    }
+
+    function dessinerTriangleQuelconque(a, b, c) {
+      const canvas = document.getElementById("triangleGenCanvas");
+      const ctx = canvas.getContext("2d");
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+      const scale = 200 / Math.max(a, b, c);
+      const A = { x: 150, y: 350 };
+      const B = { x: A.x + c * scale, y: A.y };
+      const cosC = (a*a + b*b - c*c) / (2 * a * b);
+      const angleC = Math.acos(cosC);
+      const C = {
+        x: A.x + b * scale * Math.cos(angleC),
+        y: A.y - b * scale * Math.sin(angleC)
+      };
+
+      ctx.beginPath();
+      ctx.moveTo(A.x, A.y);
+      ctx.lineTo(B.x, B.y);
+      ctx.lineTo(C.x, C.y);
+      ctx.closePath();
+
+      ctx.strokeStyle = "#28a745";
+      ctx.lineWidth = 2;
+      ctx.stroke();
+
+      ctx.fillStyle = "#000";
+      ctx.font = "14px Arial";
+      ctx.fillText(`a = ${a}`, (B.x + C.x) / 2, (B.y + C.y) / 2 - 10);
+      ctx.fillText(`b = ${b}`, (A.x + C.x) / 2 - 30, (A.y + C.y) / 2);
+      ctx.fillText(`c = ${c}`, (A.x + B.x) / 2 - 15, A.y + 20);
+    }
+  </script>
+</body>
+</html>
+
+
+<!-- Bannière de cookies RGPD -->
+<div id="cookie-banner" style="position: fixed; bottom: 0; left: 0; right: 0; background: #2c3e50; color: white; padding: 15px; text-align: center; z-index: 9999;">
+  <span>Ce site utilise des cookies pour améliorer votre expérience et afficher des publicités personnalisées (Google AdSense). En continuant, vous acceptez notre <a href="politique-confidentialite.html" style="color: #00bcd4; text-decoration: underline;">politique de confidentialité</a>.</span>
+  <br><br>
+  <button onclick="acceptCookies()" style="margin-right: 10px; padding: 6px 14px; background: #00c853; color: white; border: none; border-radius: 4px; cursor: pointer;">Accepter</button>
+  <button onclick="rejectCookies()" style="padding: 6px 14px; background: #c62828; color: white; border: none; border-radius: 4px; cursor: pointer;">Refuser</button>
+</div>
+
+<script>
+function acceptCookies() {
+  localStorage.setItem("cookieConsent", "accepted");
+  document.getElementById("cookie-banner").style.display = "none";
+  // Ici, tu peux activer les scripts AdSense ou Analytics par exemple
+}
+
+function rejectCookies() {
+  localStorage.setItem("cookieConsent", "rejected");
+  document.getElementById("cookie-banner").style.display = "none";
+  // Ici, tu désactives les scripts optionnels
+}
+
+window.onload = function () {
+  const consent = localStorage.getItem("cookieConsent");
+  if (consent === "accepted") {
+    document.getElementById("cookie-banner").style.display = "none";
+    // Activer les scripts ici si nécessaire
+  } else if (consent === "rejected") {
+    document.getElementById("cookie-banner").style.display = "none";
+    // Ne rien activer
+  }
+};
+</script>

@@ -1,0 +1,179 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <title>Projectile avec énergie</title>
+  <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
+  <style>
+    body { font-family: Arial; text-align: center; }
+    input { margin: 5px; padding: 5px; width: 100px; }
+    .container { display: flex; flex-direction: column; align-items: center; }
+    .param-row { margin: 10px; display: flex; flex-wrap: wrap; justify-content: center; }
+    .formule { margin: 20px; text-align: left; max-width: 800px; }
+  </style>
+</head>
+<body>
+  <h1>Projectile avec frottement et énergie</h1>
+
+  <div class="container">
+    <div class="param-row">
+      <label>Masse (kg): <input type="number" id="mass" value="1" step="0.1"></label>
+      <label>Vitesse initiale (m/s): <input type="number" id="v0" value="30"></label>
+      <label>Angle (°): <input type="number" id="angle" value="45"></label>
+      <label>Frottement (k): <input type="number" id="k" value="0.05" step="0.01"></label>
+    </div>
+    <button onclick="launch()">Lancer</button>
+
+    <div id="animation" style="width:600px;height:400px;"></div>
+    <div id="plot1" style="width:600px;height:250px;"></div>
+    <div id="plot2" style="width:600px;height:250px;"></div>
+    <div id="plot3" style="width:600px;height:250px;"></div>
+    <div id="plot4" style="width:600px;height:300px;"></div>
+
+    <div class="formule">
+      <h3>Formules utilisées :</h3>
+      <p><strong>Accélération :</strong></p>
+      <p>ax = - (k/m) · v · vx</p>
+      <p>ay = -g - (k/m) · v · vy</p>
+
+      <p><strong>Vitesse :</strong> vx += ax · dt, vy += ay · dt</p>
+      <p><strong>Position :</strong> x += vx · dt, y += vy · dt</p>
+
+      <p><strong>Énergie cinétique :</strong> Ec = ½·m·v²</p>
+      <p><strong>Énergie potentielle :</strong> Ep = m·g·y</p>
+      <p><strong>Énergie mécanique :</strong> Em = Ec + Ep</p>
+    </div>
+  </div>
+
+  <script>
+    const g = 9.81;
+    let interval;
+
+    function launch() {
+      clearInterval(interval);
+
+      let m = parseFloat(document.getElementById("mass").value);
+      let v0 = parseFloat(document.getElementById("v0").value);
+      let angle = parseFloat(document.getElementById("angle").value) * Math.PI / 180;
+      let k = parseFloat(document.getElementById("k").value);
+
+      let dt = 0.02, t = 0;
+      let x = 0, y = 0;
+      let vx = v0 * Math.cos(angle);
+      let vy = v0 * Math.sin(angle);
+
+      let tData = [], yData = [], vData = [], aData = [];
+      let ecData = [], epData = [], emData = [];
+
+      Plotly.newPlot('animation', [{
+        x: [x],
+        y: [y],
+        mode: 'markers',
+        marker: { size: 10, color: 'red' }
+      }], {
+        xaxis: { range: [0, 50], title: "x (m)" },
+        yaxis: { range: [0, 30], title: "y (m)" },
+        margin: { t: 0 }
+      });
+
+      Plotly.newPlot('plot1', [{ x: [], y: [], name: "Hauteur", mode: "lines" }],
+        { xaxis: { title: "Temps (s)" }, yaxis: { title: "Hauteur (m)" } });
+
+      Plotly.newPlot('plot2', [{ x: [], y: [], name: "Vitesse", mode: "lines", line: { color: 'orange' } }],
+        { xaxis: { title: "Temps (s)" }, yaxis: { title: "Vitesse (m/s)" } });
+
+      Plotly.newPlot('plot3', [{ x: [], y: [], name: "Accélération", mode: "lines", line: { color: 'green' } }],
+        { xaxis: { title: "Temps (s)" }, yaxis: { title: "Accélération (m/s²)" } });
+
+      Plotly.newPlot('plot4', [
+        { x: [], y: [], name: "Énergie cinétique", mode: "lines", line: { color: 'red' } },
+        { x: [], y: [], name: "Énergie potentielle", mode: "lines", line: { color: 'blue' } },
+        { x: [], y: [], name: "Énergie totale", mode: "lines", line: { color: 'black', dash: 'dot' } }
+      ], {
+        xaxis: { title: "Temps (s)" },
+        yaxis: { title: "Énergie (J)" }
+      });
+
+      interval = setInterval(() => {
+        let v = Math.sqrt(vx * vx + vy * vy);
+        let ax = -k * v * vx / m;
+        let ay = -g - k * v * vy / m;
+
+        vx += ax * dt;
+        vy += ay * dt;
+        x += vx * dt;
+        y += vy * dt;
+        t += dt;
+
+        if (y <= 0) {
+          clearInterval(interval);
+          return;
+        }
+
+        let aMag = Math.sqrt(ax * ax + ay * ay);
+        let Ec = 0.5 * m * v * v;
+        let Ep = m * g * y;
+        let Em = Ec + Ep;
+
+        tData.push(t);
+        yData.push(y);
+        vData.push(v);
+        aData.push(aMag);
+        ecData.push(Ec);
+        epData.push(Ep);
+        emData.push(Em);
+
+        Plotly.animate('animation', {
+          data: [{ x: [x], y: [y] }]
+        }, {
+          transition: { duration: 0 },
+          frame: { duration: 0, redraw: true }
+        });
+
+        Plotly.update('plot1', { x: [tData], y: [yData] });
+        Plotly.update('plot2', { x: [tData], y: [vData] });
+        Plotly.update('plot3', { x: [tData], y: [aData] });
+        Plotly.update('plot4', {
+          x: [tData, tData, tData],
+          y: [ecData, epData, emData]
+        });
+      }, 20);
+    }
+  </script>
+</body>
+</html>
+
+
+
+<!-- Bannière de cookies RGPD -->
+<div id="cookie-banner" style="position: fixed; bottom: 0; left: 0; right: 0; background: #2c3e50; color: white; padding: 15px; text-align: center; z-index: 9999;">
+  <span>Ce site utilise des cookies pour améliorer votre expérience et afficher des publicités personnalisées (Google AdSense). En continuant, vous acceptez notre <a href="politique-confidentialite.html" style="color: #00bcd4; text-decoration: underline;">politique de confidentialité</a>.</span>
+  <br><br>
+  <button onclick="acceptCookies()" style="margin-right: 10px; padding: 6px 14px; background: #00c853; color: white; border: none; border-radius: 4px; cursor: pointer;">Accepter</button>
+  <button onclick="rejectCookies()" style="padding: 6px 14px; background: #c62828; color: white; border: none; border-radius: 4px; cursor: pointer;">Refuser</button>
+</div>
+
+<script>
+function acceptCookies() {
+  localStorage.setItem("cookieConsent", "accepted");
+  document.getElementById("cookie-banner").style.display = "none";
+  // Ici, tu peux activer les scripts AdSense ou Analytics par exemple
+}
+
+function rejectCookies() {
+  localStorage.setItem("cookieConsent", "rejected");
+  document.getElementById("cookie-banner").style.display = "none";
+  // Ici, tu désactives les scripts optionnels
+}
+
+window.onload = function () {
+  const consent = localStorage.getItem("cookieConsent");
+  if (consent === "accepted") {
+    document.getElementById("cookie-banner").style.display = "none";
+    // Activer les scripts ici si nécessaire
+  } else if (consent === "rejected") {
+    document.getElementById("cookie-banner").style.display = "none";
+    // Ne rien activer
+  }
+};
+</script>

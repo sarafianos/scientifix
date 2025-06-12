@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <title>Oscillateur Harmonique</title>
+  <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
+  <style>
+    body {
+      font-family: Arial;
+      text-align: center;
+      margin: 40px;
+    }
+    .input-group {
+      margin: 10px;
+    }
+    input {
+      width: 100px;
+    }
+    #equation {
+      margin: 20px;
+      font-weight: bold;
+    }
+    #animation {
+      margin-top: 30px;
+    }
+  </style>
+</head>
+<body>
+  <h2>Oscillateur Harmonique</h2>
+  <img src="oscillateurHarmonique.svg" alt="Illustration de l'oscillateur harmonique (masse accrochée au ressort." />
+
+  <div class="input-group">
+    Masse m (kg): <input type="number" id="mass" value="1" step="0.1">
+    Raideur k (N/m): <input type="number" id="k" value="10" step="0.1">
+    Amortissement b (kg/s): <input type="number" id="b" value="0.5" step="0.1"><br><br>
+    x₀ (m): <input type="number" id="x0" value="1" step="0.1">
+    v₀ (m/s): <input type="number" id="v0" value="0" step="0.1">
+  </div>
+
+  <button onclick="start()">Lancer</button>
+
+  <div id="equation">
+    Équation : m·d²x/dt² + b·dx/dt + k·x = 0
+  </div>
+
+  <div id="animation">
+    <div id="oscillator" style="width:500px;height:300px;display:inline-block;"></div>
+    <div id="graph" style="width:500px;height:300px;display:inline-block;"></div>
+  </div>
+
+  <script>
+    let interval;
+    function start() {
+      clearInterval(interval);
+
+      const m = parseFloat(document.getElementById("mass").value);
+      const k = parseFloat(document.getElementById("k").value);
+      const b = parseFloat(document.getElementById("b").value);
+      const x0 = parseFloat(document.getElementById("x0").value);
+      const v0 = parseFloat(document.getElementById("v0").value);
+
+      let t = 0;
+      const dt = 0.02;
+      let x = x0;
+      let v = v0;
+
+      const xData = [];
+      const tData = [];
+
+      Plotly.newPlot("oscillator", [{
+        x: [x],
+        y: [0],
+        mode: "markers",
+        marker: { size: 20, color: "#3399ff" }
+      }], {
+        xaxis: { range: [-2, 2], zeroline: false },
+        yaxis: { range: [-1, 1], showticklabels: false },
+        margin: { t: 10 }
+      });
+
+      Plotly.newPlot("graph", [{
+        x: [],
+        y: [],
+        mode: "lines",
+        line: { color: "#3399ff" }
+      }], {
+        xaxis: { title: "Temps (s)" },
+        yaxis: { title: "Position (m)" },
+        margin: { t: 10 }
+      });
+
+      interval = setInterval(() => {
+        const a = (-b * v - k * x) / m;
+        v += a * dt;
+        x += v * dt;
+        t += dt;
+
+        Plotly.animate("oscillator", {
+          data: [{ x: [x], y: [0] }]
+        }, {
+          transition: { duration: 0 },
+          frame: { duration: 0, redraw: false }
+        });
+
+        xData.push(x);
+        tData.push(t);
+        Plotly.update("graph", { x: [tData], y: [xData] });
+      }, dt * 1000);
+    }
+  </script>
+</body>
+</html>
+
+
+<!-- Bannière de cookies RGPD -->
+<div id="cookie-banner" style="position: fixed; bottom: 0; left: 0; right: 0; background: #2c3e50; color: white; padding: 15px; text-align: center; z-index: 9999;">
+  <span>Ce site utilise des cookies pour améliorer votre expérience et afficher des publicités personnalisées (Google AdSense). En continuant, vous acceptez notre <a href="politique-confidentialite.html" style="color: #00bcd4; text-decoration: underline;">politique de confidentialité</a>.</span>
+  <br><br>
+  <button onclick="acceptCookies()" style="margin-right: 10px; padding: 6px 14px; background: #00c853; color: white; border: none; border-radius: 4px; cursor: pointer;">Accepter</button>
+  <button onclick="rejectCookies()" style="padding: 6px 14px; background: #c62828; color: white; border: none; border-radius: 4px; cursor: pointer;">Refuser</button>
+</div>
+
+<script>
+function acceptCookies() {
+  localStorage.setItem("cookieConsent", "accepted");
+  document.getElementById("cookie-banner").style.display = "none";
+  // Ici, tu peux activer les scripts AdSense ou Analytics par exemple
+}
+
+function rejectCookies() {
+  localStorage.setItem("cookieConsent", "rejected");
+  document.getElementById("cookie-banner").style.display = "none";
+  // Ici, tu désactives les scripts optionnels
+}
+
+window.onload = function () {
+  const consent = localStorage.getItem("cookieConsent");
+  if (consent === "accepted") {
+    document.getElementById("cookie-banner").style.display = "none";
+    // Activer les scripts ici si nécessaire
+  } else if (consent === "rejected") {
+    document.getElementById("cookie-banner").style.display = "none";
+    // Ne rien activer
+  }
+};
+</script>

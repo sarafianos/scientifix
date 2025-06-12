@@ -1,0 +1,157 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Calculateur d'Anneau</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background: #f4f4f4;
+      margin: 0;
+      padding: 0;
+    }
+    .container {
+      max-width: 600px;
+      margin: 40px auto;
+      background: white;
+      padding: 20px;
+      border-radius: 12px;
+      box-shadow: 0 0 12px rgba(0, 0, 0, 0.1);
+      text-align: center;
+    }
+    h1 {
+      color: #007BFF;
+    }
+    img {
+      max-width: 200px;
+      display: block;
+      margin: 10px auto;
+    }
+    .formules {
+      background: #eef;
+      padding: 10px;
+      border-radius: 8px;
+      margin-bottom: 15px;
+    }
+    label, input {
+      display: block;
+      margin: 10px auto;
+      font-size: 1.1rem;
+    }
+    input[type="number"] {
+      padding: 10px;
+      width: 80%;
+    }
+    button {
+      padding: 10px 20px;
+      margin-top: 10px;
+      background-color: #007BFF;
+      color: white;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+    }
+    button:hover {
+      background-color: #0056b3;
+    }
+    .result {
+      margin-top: 20px;
+      font-size: 1.2rem;
+      color: #333;
+    }
+    svg {
+      margin-top: 30px;
+      display: block;
+      margin-left: auto;
+      margin-right: auto;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>Calculateur d'Anneau</h1>
+    <img src="anneau.svg" alt="Illustration d’un anneau" />
+	
+    <div class="formules">
+      Aire = π × (R² - r²)<br>
+      Périmètre extérieur = 2πR<br>
+      Périmètre intérieur = 2πr
+    </div>
+
+    <label for="R">Rayon extérieur (R) :</label>
+    <input type="number" id="R" placeholder="Rayon du grand cercle">
+
+    <label for="r">Rayon intérieur (r) :</label>
+    <input type="number" id="r" placeholder="Rayon du petit cercle">
+
+    <button onclick="calculerAnneau()">Calculer</button>
+
+    <div class="result" id="result"></div>
+
+    <svg id="svgAnneau" width="300" height="300">
+      <circle id="grand" cx="150" cy="150" r="100" fill="none" stroke="#007BFF" stroke-width="2"/>
+      <circle id="petit" cx="150" cy="150" r="50" fill="none" stroke="#FF5733" stroke-width="2"/>
+    </svg>
+  </div>
+
+  <script>
+    function calculerAnneau() {
+      const R = parseFloat(document.getElementById('R').value);
+      const r = parseFloat(document.getElementById('r').value);
+      const resultDiv = document.getElementById('result');
+
+      if (isNaN(R) || isNaN(r) || R <= 0 || r <= 0 || r >= R) {
+        resultDiv.innerText = "Veuillez entrer des rayons valides (R > r > 0)";
+        return;
+      }
+
+      const aire = Math.PI * (R * R - r * r);
+      const perimExt = 2 * Math.PI * R;
+      const perimInt = 2 * Math.PI * r;
+
+      resultDiv.innerHTML = `
+        Aire : ${aire.toFixed(2)} unités²<br>
+        Périmètre extérieur : ${perimExt.toFixed(2)} unités<br>
+        Périmètre intérieur : ${perimInt.toFixed(2)} unités
+      `;
+
+      document.getElementById('grand').setAttribute("r", R);
+      document.getElementById('petit').setAttribute("r", r);
+    }
+  </script>
+</body>
+</html>
+
+<!-- Bannière de cookies RGPD -->
+<div id="cookie-banner" style="position: fixed; bottom: 0; left: 0; right: 0; background: #2c3e50; color: white; padding: 15px; text-align: center; z-index: 9999;">
+  <span>Ce site utilise des cookies pour améliorer votre expérience et afficher des publicités personnalisées (Google AdSense). En continuant, vous acceptez notre <a href="politique-confidentialite.html" style="color: #00bcd4; text-decoration: underline;">politique de confidentialité</a>.</span>
+  <br><br>
+  <button onclick="acceptCookies()" style="margin-right: 10px; padding: 6px 14px; background: #00c853; color: white; border: none; border-radius: 4px; cursor: pointer;">Accepter</button>
+  <button onclick="rejectCookies()" style="padding: 6px 14px; background: #c62828; color: white; border: none; border-radius: 4px; cursor: pointer;">Refuser</button>
+</div>
+
+<script>
+function acceptCookies() {
+  localStorage.setItem("cookieConsent", "accepted");
+  document.getElementById("cookie-banner").style.display = "none";
+  // Ici, tu peux activer les scripts AdSense ou Analytics par exemple
+}
+
+function rejectCookies() {
+  localStorage.setItem("cookieConsent", "rejected");
+  document.getElementById("cookie-banner").style.display = "none";
+  // Ici, tu désactives les scripts optionnels
+}
+
+window.onload = function () {
+  const consent = localStorage.getItem("cookieConsent");
+  if (consent === "accepted") {
+    document.getElementById("cookie-banner").style.display = "none";
+    // Activer les scripts ici si nécessaire
+  } else if (consent === "rejected") {
+    document.getElementById("cookie-banner").style.display = "none";
+    // Ne rien activer
+  }
+};
+</script>

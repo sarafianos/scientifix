@@ -1,0 +1,143 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <title>Loi de Snell-Descartes</title>
+  <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css">
+  <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js"></script>
+  <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/contrib/auto-render.min.js"
+    onload="renderMathInElement(document.body);"></script>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      margin: 30px;
+      background-color: #f5f5f5;
+    }
+    input, select {
+      padding: 6px;
+      margin: 4px 0;
+      width: 100px;
+    }
+    label {
+      display: block;
+      margin-top: 10px;
+    }
+    #controls {
+      margin-bottom: 20px;
+    }
+  </style>
+</head>
+<body>
+  <h2>Loi de Snell-Descartes</h2>
+
+  <div id="equations">
+    <p>Formule :</p>
+    <p>n<sub>1</sub>.sin(&theta;<sub>1</sub>) = n<sub>2</sub>.sin(&theta;<sub>2</sub>) </p>
+  </div>
+
+  <div id="controls">
+    <label>Indice du milieu 1 (n<sub>1</sub>) : <input type="number" id="n1" value="1" step="0.01" /></label>
+    <label>Indice du milieu 2 (n<sub>2</sub>) : <input type="number" id="n2" value="1.5" step="0.01" /></label>
+    <label>Angle d'incidence &theta;<sub>1</sub> (en degrés) : <input type="number" id="theta1" value="45" step="1" /></label>
+    <button onclick="update()">Tracer</button>
+  </div>
+
+  <div id="plot" style="width: 100%; height: 500px;"></div>
+
+  <script>
+    function deg2rad(deg) {
+      return deg * Math.PI / 180;
+    }
+
+    function update() {
+      const n1 = parseFloat(document.getElementById("n1").value);
+      const n2 = parseFloat(document.getElementById("n2").value);
+      const theta1_deg = parseFloat(document.getElementById("theta1").value);
+      const theta1 = deg2rad(theta1_deg);
+
+      let sin_theta2 = n1 * Math.sin(theta1) / n2;
+      if (Math.abs(sin_theta2) > 1) {
+        alert("Réflexion totale !");
+        return;
+      }
+
+      const theta2 = Math.asin(sin_theta2);
+      const L = 1;
+
+      const x1 = [-L * Math.sin(theta1), 0];
+      const y1 = [L * Math.cos(theta1), 0];
+
+      const x2 = [0, L * Math.sin(theta2)];
+      const y2 = [0, -L * Math.cos(theta2)];
+
+      const trace1 = {
+        x: x1,
+        y: y1,
+        mode: 'lines',
+        line: { color: 'blue', width: 4 },
+        name: 'Rayon incident'
+      };
+
+      const trace2 = {
+        x: x2,
+        y: y2,
+        mode: 'lines',
+        line: { color: 'red', width: 4 },
+        name: 'Rayon réfracté'
+      };
+
+      const trace3 = {
+        x: [-1.5, 1.5],
+        y: [0, 0],
+        mode: 'lines',
+        line: { color: 'black', dash: 'dash', width: 2 },
+        name: 'Surface de séparation'
+      };
+
+      Plotly.newPlot('plot', [trace1, trace2, trace3], {
+        title: "Propagation de la lumière",
+        xaxis: { range: [-1.5, 1.5], title: 'x', zeroline: false },
+        yaxis: { range: [-1.5, 1.5], title: 'y', zeroline: false },
+        showlegend: true
+      });
+    }
+
+    update();
+  </script>
+</body>
+</html>
+
+
+<!-- Bannière de cookies RGPD -->
+<div id="cookie-banner" style="position: fixed; bottom: 0; left: 0; right: 0; background: #2c3e50; color: white; padding: 15px; text-align: center; z-index: 9999;">
+  <span>Ce site utilise des cookies pour améliorer votre expérience et afficher des publicités personnalisées (Google AdSense). En continuant, vous acceptez notre <a href="politique-confidentialite.html" style="color: #00bcd4; text-decoration: underline;">politique de confidentialité</a>.</span>
+  <br><br>
+  <button onclick="acceptCookies()" style="margin-right: 10px; padding: 6px 14px; background: #00c853; color: white; border: none; border-radius: 4px; cursor: pointer;">Accepter</button>
+  <button onclick="rejectCookies()" style="padding: 6px 14px; background: #c62828; color: white; border: none; border-radius: 4px; cursor: pointer;">Refuser</button>
+</div>
+
+<script>
+function acceptCookies() {
+  localStorage.setItem("cookieConsent", "accepted");
+  document.getElementById("cookie-banner").style.display = "none";
+  // Ici, tu peux activer les scripts AdSense ou Analytics par exemple
+}
+
+function rejectCookies() {
+  localStorage.setItem("cookieConsent", "rejected");
+  document.getElementById("cookie-banner").style.display = "none";
+  // Ici, tu désactives les scripts optionnels
+}
+
+window.onload = function () {
+  const consent = localStorage.getItem("cookieConsent");
+  if (consent === "accepted") {
+    document.getElementById("cookie-banner").style.display = "none";
+    // Activer les scripts ici si nécessaire
+  } else if (consent === "rejected") {
+    document.getElementById("cookie-banner").style.display = "none";
+    // Ne rien activer
+  }
+};
+</script>

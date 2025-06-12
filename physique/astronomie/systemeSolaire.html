@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <title>Système Solaire 3D</title>
+  <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background-color: #000;
+      color: white;
+      margin: 0;
+      padding: 20px;
+    }
+    #controls {
+      margin-bottom: 20px;
+    }
+    input[type=range] {
+      width: 300px;
+    }
+  </style>
+</head>
+<body>
+  <h2>Système Solaire 3D</h2>
+  <div id="controls">
+    <label for="daySlider">Jour : <span id="dayLabel">0</span></label><br>
+    <input type="range" id="daySlider" min="0" max="3650" step="1" value="0">
+  </div>
+  <div id="plot" style="height: 600px;"></div>
+
+  <script>
+    const planets = [
+      { name: "Mercure", radius: 0.39, color: "gray", period: 88, size: 0.5 },
+      { name: "Vénus", radius: 0.72, color: "yellow", period: 225, size: 0.8 },
+      { name: "Terre", radius: 1.0, color: "blue", period: 365, size: 1.0 },
+      { name: "Mars", radius: 1.52, color: "red", period: 687, size: 0.7 },
+      { name: "Jupiter", radius: 5.2, color: "orange", period: 4333, size: 2.0 },
+      { name: "Saturne", radius: 9.58, color: "goldenrod", period: 10759, size: 1.8 },
+      { name: "Uranus", radius: 19.18, color: "lightblue", period: 30687, size: 1.5 },
+      { name: "Neptune", radius: 30.07, color: "cyan", period: 60200, size: 1.5 }
+    ];
+
+    const daySlider = document.getElementById("daySlider");
+    const dayLabel = document.getElementById("dayLabel");
+
+    function getPlanetTraces(day) {
+      const traces = [];
+
+      traces.push({
+        x: [0], y: [0], z: [0],
+        type: 'scatter3d',
+        mode: 'markers',
+        marker: { size: 10, color: 'yellow' },
+        name: 'Soleil'
+      });
+
+      for (let p of planets) {
+        const angle = 2 * Math.PI * (day % p.period) / p.period;
+        const x = p.radius * Math.cos(angle);
+        const y = p.radius * Math.sin(angle);
+        const z = 0;
+        traces.push({
+          x: [x], y: [y], z: [z],
+          type: 'scatter3d',
+          mode: 'markers',
+          marker: { size: p.size * 2, color: p.color },
+          name: p.name
+        });
+      }
+
+      return traces;
+    }
+
+    function updatePlot(day) {
+      const traces = getPlanetTraces(day);
+      Plotly.react("plot", traces, {
+        scene: {
+          xaxis: { visible: false, showgrid: false },
+          yaxis: { visible: false, showgrid: false },
+          zaxis: { visible: false, showgrid: false },
+          aspectmode: 'cube',
+          bgcolor: '#000'
+        },
+        margin: { l: 0, r: 0, b: 0, t: 0 },
+        paper_bgcolor: '#000',
+        showlegend: true,
+        font: { color: '#fff' }
+      });
+    }
+
+    daySlider.addEventListener("input", () => {
+      const day = parseInt(daySlider.value);
+      dayLabel.textContent = day;
+      updatePlot(day);
+    });
+
+    updatePlot(0);
+  </script>
+</body>
+</html>

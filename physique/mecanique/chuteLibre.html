@@ -1,0 +1,166 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <title>Chute libre avec frottement</title>
+  <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
+  <style>
+    body {
+      font-family: Arial;
+      text-align: center;
+    }
+    input {
+      width: 100px;
+      margin: 5px;
+    }
+    #animationZone {
+      height: 300px;
+      border: 1px solid #ccc;
+      position: relative;
+      margin: 20px auto;
+      width: 100px;
+      background: #f0f0f0;
+    }
+    #mass {
+      width: 30px;
+      height: 30px;
+      background: blue;
+      border-radius: 50%;
+      position: absolute;
+      left: 35px;
+    }
+    #graph {
+      width: 90%;
+      margin: auto;
+    }
+  </style>
+</head>
+<body>
+  <h1>Chute libre avec frottement</h1>
+
+  <label>Hauteur initiale (m): <input type="number" id="h0" value="100" /></label><br />
+  <label>Vitesse initiale (m/s): <input type="number" id="v0" value="0" /></label><br />
+  <label>Constante de frottement (N·s/m): <input type="number" id="k" value="0.5" /></label><br />
+  <label>Masse (kg): <input type="number" id="m" value="1" /></label><br />
+  <button onclick="start()">Lancer la simulation</button>
+
+  <div id="animationZone">
+    <div id="mass"></div>
+  </div>
+
+  <div id="graph"></div>
+
+  <script>
+    function start() {
+      const h0 = parseFloat(document.getElementById("h0").value);
+      const v0 = parseFloat(document.getElementById("v0").value);
+      const k = parseFloat(document.getElementById("k").value);
+      const m = parseFloat(document.getElementById("m").value);
+      const g = 9.81;
+
+      const dt = 0.1;
+      const tMax = 30;
+      let t = 0;
+      let y = h0;
+      let v = v0;
+
+      const tData = [], yData = [], vData = [], aData = [];
+
+      const massEl = document.getElementById("mass");
+      const zoneHeight = document.getElementById("animationZone").clientHeight;
+      const scale = zoneHeight / h0;
+
+      Plotly.newPlot("graph", [
+        {
+          x: [],
+          y: [],
+          mode: "lines",
+          name: "Hauteur (m)",
+          line: { color: "blue" },
+          yaxis: "y1"
+        },
+        {
+          x: [],
+          y: [],
+          mode: "lines",
+          name: "Vitesse (m/s)",
+          line: { color: "red", dash: "dot" },
+          yaxis: "y2"
+        },
+        {
+          x: [],
+          y: [],
+          mode: "lines",
+          name: "Accélération (m/s²)",
+          line: { color: "green", dash: "dot" },
+          yaxis: "y3"
+        }
+      ], {
+        xaxis: { title: "Temps (s)" },
+        yaxis: { title: "Hauteur (m)", side: "left", range: [0, h0] },
+        yaxis2: { title: "Vitesse (m/s)", overlaying: "y", side: "right" },
+        yaxis3: { title: "Accélération", overlaying: "y", side: "right", position: 1 },
+        legend: { x: 0.1, y: 1.2 }
+      });
+
+      const interval = setInterval(() => {
+        const a = g - (k / m) * v;
+        v += a * dt;
+        y -= v * dt;
+        if (y < 0) y = 0;
+
+        t += dt;
+        tData.push(t);
+        yData.push(y);
+        vData.push(v);
+        aData.push(a);
+
+        Plotly.update("graph", {
+          x: [tData, tData, tData],
+          y: [yData, vData, aData]
+        });
+
+        massEl.style.top = `${Math.min(zoneHeight - 30, zoneHeight - y * scale)}px`;
+
+        if (y <= 0 || t > tMax) {
+          clearInterval(interval);
+        }
+      }, dt * 1000);
+    }
+  </script>
+</body>
+</html>
+
+
+<!-- Bannière de cookies RGPD -->
+<div id="cookie-banner" style="position: fixed; bottom: 0; left: 0; right: 0; background: #2c3e50; color: white; padding: 15px; text-align: center; z-index: 9999;">
+  <span>Ce site utilise des cookies pour améliorer votre expérience et afficher des publicités personnalisées (Google AdSense). En continuant, vous acceptez notre <a href="politique-confidentialite.html" style="color: #00bcd4; text-decoration: underline;">politique de confidentialité</a>.</span>
+  <br><br>
+  <button onclick="acceptCookies()" style="margin-right: 10px; padding: 6px 14px; background: #00c853; color: white; border: none; border-radius: 4px; cursor: pointer;">Accepter</button>
+  <button onclick="rejectCookies()" style="padding: 6px 14px; background: #c62828; color: white; border: none; border-radius: 4px; cursor: pointer;">Refuser</button>
+</div>
+
+<script>
+function acceptCookies() {
+  localStorage.setItem("cookieConsent", "accepted");
+  document.getElementById("cookie-banner").style.display = "none";
+  // Ici, tu peux activer les scripts AdSense ou Analytics par exemple
+}
+
+function rejectCookies() {
+  localStorage.setItem("cookieConsent", "rejected");
+  document.getElementById("cookie-banner").style.display = "none";
+  // Ici, tu désactives les scripts optionnels
+}
+
+window.onload = function () {
+  const consent = localStorage.getItem("cookieConsent");
+  if (consent === "accepted") {
+    document.getElementById("cookie-banner").style.display = "none";
+    // Activer les scripts ici si nécessaire
+  } else if (consent === "rejected") {
+    document.getElementById("cookie-banner").style.display = "none";
+    // Ne rien activer
+  }
+};
+</script>

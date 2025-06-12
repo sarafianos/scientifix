@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <title>Cosinus - Cercle trigonométrique</title>
+  <style>
+    body {
+      font-family: sans-serif;
+      text-align: center;
+      background: white;
+    }
+    svg {
+      border: 1px solid #ccc;
+      background: #f9f9f9;
+      margin-top: 20px;
+    }
+    .formula {
+      margin: 10px;
+      font-size: 18px;
+    }
+  </style>
+</head>
+<body>
+
+<h1>Cosinus sur le cercle trigonométrique</h1>
+<p class="formula">cos(θ) = projection sur l'axe des abscisses (horizontal)</p>
+
+<label for="angle">Angle (0° à 360°) :</label>
+<input type="number" id="angle" value="30" min="0" max="360">
+<button onclick="update()">Calculer</button>
+
+<p id="result">cos(30°) = 0.866</p>
+
+<svg id="svg" viewBox="-1.5 -1.5 3 3" width="400" height="400" style="transform: scaleY(-1);">
+  <!-- Cercle trigonométrique -->
+  <circle cx="0" cy="0" r="1" stroke="black" fill="none" stroke-width="0.02"/>
+
+  <!-- Axes -->
+  <line x1="-1.2" y1="0" x2="1.2" y2="0" stroke="#aaa" stroke-width="0.01"/>
+  <line x1="0" y1="-1.2" x2="0" y2="1.2" stroke="#aaa" stroke-width="0.01"/>
+
+  <!-- Rayon -->
+  <line id="rayon" x1="0" y1="0" x2="0" y2="0" stroke="blue" stroke-width="0.02"/>
+
+  <!-- Projection cosinus (ligne verticale depuis le point vers l'axe X) -->
+  <line id="projCos" x1="0" y1="0" x2="0" y2="0" stroke="green" stroke-width="0.015" stroke-dasharray="0.02"/>
+
+  <!-- Point sur le cercle -->
+  <circle id="ptCercle" cx="0" cy="0" r="0.04" fill="blue"/>
+
+  <!-- Arc pour l’angle theta -->
+  <path id="thetaArc" d="" fill="none" stroke="purple" stroke-width="0.015"/>
+
+  <!-- Texte de l’angle theta -->
+  <text id="thetaLabel" x="0.2" y="0.05" font-size="0.12" fill="purple">θ</text>
+</svg>
+
+<script>
+function update() {
+  const angleDeg = Math.max(0, Math.min(360, parseFloat(document.getElementById("angle").value)));
+  const angleRad = angleDeg * Math.PI / 180;
+
+  const x = Math.cos(angleRad);
+  const y = Math.sin(angleRad);
+
+  document.getElementById("result").textContent = `cos(${angleDeg}°) = ${x.toFixed(3)}`;
+
+  // Rayon
+  document.getElementById("rayon").setAttribute("x2", x);
+  document.getElementById("rayon").setAttribute("y2", y);
+
+  // Point sur le cercle
+  document.getElementById("ptCercle").setAttribute("cx", x);
+  document.getElementById("ptCercle").setAttribute("cy", y);
+
+  // Projection cosinus (ligne verticale vers axe X)
+  document.getElementById("projCos").setAttribute("x1", x);
+  document.getElementById("projCos").setAttribute("y1", 0);
+  document.getElementById("projCos").setAttribute("x2", x);
+  document.getElementById("projCos").setAttribute("y2", y);
+
+  // Arc pour l'angle (rayon 0.25)
+  const r = 0.25;
+  const largeArc = angleDeg > 180 ? 1 : 0;
+  const arcX = r * Math.cos(angleRad);
+  const arcY = r * Math.sin(angleRad);
+  const d = `M ${r} 0 A ${r} ${r} 0 ${largeArc} 1 ${arcX} ${arcY}`;
+  document.getElementById("thetaArc").setAttribute("d", d);
+
+  // Position du texte θ
+  const midAngle = angleRad / 2;
+  const tx = 0.35 * Math.cos(midAngle);
+  const ty = 0.35 * Math.sin(midAngle);
+  document.getElementById("thetaLabel").setAttribute("x", tx);
+  document.getElementById("thetaLabel").setAttribute("y", ty);
+}
+
+update();
+</script>
+
+</body>
+</html>
+
+
+<!-- Bannière de cookies RGPD -->
+<div id="cookie-banner" style="position: fixed; bottom: 0; left: 0; right: 0; background: #2c3e50; color: white; padding: 15px; text-align: center; z-index: 9999;">
+  <span>Ce site utilise des cookies pour améliorer votre expérience et afficher des publicités personnalisées (Google AdSense). En continuant, vous acceptez notre <a href="politique-confidentialite.html" style="color: #00bcd4; text-decoration: underline;">politique de confidentialité</a>.</span>
+  <br><br>
+  <button onclick="acceptCookies()" style="margin-right: 10px; padding: 6px 14px; background: #00c853; color: white; border: none; border-radius: 4px; cursor: pointer;">Accepter</button>
+  <button onclick="rejectCookies()" style="padding: 6px 14px; background: #c62828; color: white; border: none; border-radius: 4px; cursor: pointer;">Refuser</button>
+</div>
+
+<script>
+function acceptCookies() {
+  localStorage.setItem("cookieConsent", "accepted");
+  document.getElementById("cookie-banner").style.display = "none";
+  // Ici, tu peux activer les scripts AdSense ou Analytics par exemple
+}
+
+function rejectCookies() {
+  localStorage.setItem("cookieConsent", "rejected");
+  document.getElementById("cookie-banner").style.display = "none";
+  // Ici, tu désactives les scripts optionnels
+}
+
+window.onload = function () {
+  const consent = localStorage.getItem("cookieConsent");
+  if (consent === "accepted") {
+    document.getElementById("cookie-banner").style.display = "none";
+    // Activer les scripts ici si nécessaire
+  } else if (consent === "rejected") {
+    document.getElementById("cookie-banner").style.display = "none";
+    // Ne rien activer
+  }
+};
+</script>

@@ -1,0 +1,187 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Courbes 3D</title>
+  <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      margin: 30px;
+      background: #f8f8f8;
+    }
+    .container {
+      max-width: 900px;
+      margin: auto;
+      background: white;
+      padding: 20px;
+      border-radius: 10px;
+      box-shadow: 0 0 12px rgba(0,0,0,0.1);
+    }
+    label {
+      display: block;
+      margin: 10px 0 5px;
+    }
+    select, input, button {
+      padding: 8px;
+      font-size: 1rem;
+      width: 100%;
+      max-width: 300px;
+      margin-bottom: 10px;
+    }
+    #equation {
+      margin: 10px 0;
+      font-weight: bold;
+      color: #007bff;
+    }
+    #parametres {
+      margin-top: 10px;
+    }
+    #parametres div {
+      margin-bottom: 10px;
+    }
+    #graph {
+      margin-top: 30px;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h2>Visualisation de courbes 3D</h2>
+    <label for="courbe">Choisissez une courbe :</label>
+    <select id="courbe" onchange="majInterface()">
+      <option value="helix">Hélice</option>
+      <option value="spirale">Spirale</option>
+      <option value="lissajous">Courbe de Lissajous</option>
+      <option value="lemniscate">Lemniscate</option>
+      <option value="noeud">Nœud de trèfle</option>
+    </select>
+
+    <div id="equation"></div>
+    <div id="parametres"></div>
+    <button onclick="tracer()">Tracer</button>
+    <div id="graph"></div>
+  </div>
+
+  <script>
+    function champParam(name, val) {
+      return `<div><label for="${name}">${name} :</label><input type="number" id="${name}" value="${val}" /></div>`;
+    }
+
+    function majInterface() {
+      const type = document.getElementById("courbe").value;
+      const params = document.getElementById("parametres");
+      const eq = document.getElementById("equation");
+      let html = "";
+
+      if (type === "helix") {
+        eq.innerText = "x = a cos(t), y = a sin(t), z = b t";
+        html += champParam("a", 5) + champParam("b", 1);
+      } else if (type === "spirale") {
+        eq.innerText = "x = a t cos(t), y = a t sin(t), z = b t";
+        html += champParam("a", 1) + champParam("b", 1);
+      } else if (type === "lissajous") {
+        eq.innerText = "x = A sin(a t + δ), y = B sin(b t), z = C sin(c t)";
+        html += champParam("A", 5) + champParam("a", 3) + champParam("delta", 0);
+        html += champParam("B", 5) + champParam("b", 2);
+        html += champParam("C", 5) + champParam("c", 1);
+      } else if (type === "lemniscate") {
+        eq.innerText = "x = (a cos(t)) / (1 + sin²(t)), y = (a cos(t) sin(t)) / (1 + sin²(t)), z = t";
+        html += champParam("a", 5);
+      } else if (type === "noeud") {
+        eq.innerText = "x = (2 + cos(3t)) cos(2t), y = (2 + cos(3t)) sin(2t), z = sin(3t)";
+      }
+
+      params.innerHTML = html;
+    }
+
+    function tracer() {
+      const type = document.getElementById("courbe").value;
+      const t = Array.from({length: 1000}, (_, i) => i * 0.01 * 10 * Math.PI);
+      let x = [], y = [], z = [];
+
+      const val = id => parseFloat(document.getElementById(id)?.value || 0);
+
+      if (type === "helix") {
+        let a = val("a"), b = val("b");
+        x = t.map(t => a * Math.cos(t));
+        y = t.map(t => a * Math.sin(t));
+        z = t.map(t => b * t);
+      } else if (type === "spirale") {
+        let a = val("a"), b = val("b");
+        x = t.map(t => a * t * Math.cos(t));
+        y = t.map(t => a * t * Math.sin(t));
+        z = t.map(t => b * t);
+      } else if (type === "lissajous") {
+        let A = val("A"), a = val("a"), delta = val("delta");
+        let B = val("B"), b = val("b");
+        let C = val("C"), c = val("c");
+        x = t.map(t => A * Math.sin(a * t + delta));
+        y = t.map(t => B * Math.sin(b * t));
+        z = t.map(t => C * Math.sin(c * t));
+      } else if (type === "lemniscate") {
+        let a = val("a");
+        x = t.map(t => a * Math.cos(t) / (1 + Math.pow(Math.sin(t),2)));
+        y = t.map(t => a * Math.cos(t) * Math.sin(t) / (1 + Math.pow(Math.sin(t),2)));
+        z = [...t];
+      } else if (type === "noeud") {
+        x = t.map(t => (2 + Math.cos(3*t)) * Math.cos(2*t));
+        y = t.map(t => (2 + Math.cos(3*t)) * Math.sin(2*t));
+        z = t.map(t => Math.sin(3*t));
+      }
+
+      Plotly.newPlot('graph', [{
+        x, y, z,
+        mode: 'lines',
+        type: 'scatter3d',
+        line: { color: '#3399ff', width: 4 }
+      }], {
+        margin: { t: 0 },
+        scene: {
+          xaxis: { showgrid: false },
+          yaxis: { showgrid: false },
+          zaxis: { showgrid: false },
+          aspectmode: 'data'
+        }
+      });
+    }
+
+    majInterface();
+  </script>
+</body>
+</html>
+
+
+<!-- Bannière de cookies RGPD -->
+<div id="cookie-banner" style="position: fixed; bottom: 0; left: 0; right: 0; background: #2c3e50; color: white; padding: 15px; text-align: center; z-index: 9999;">
+  <span>Ce site utilise des cookies pour améliorer votre expérience et afficher des publicités personnalisées (Google AdSense). En continuant, vous acceptez notre <a href="politique-confidentialite.html" style="color: #00bcd4; text-decoration: underline;">politique de confidentialité</a>.</span>
+  <br><br>
+  <button onclick="acceptCookies()" style="margin-right: 10px; padding: 6px 14px; background: #00c853; color: white; border: none; border-radius: 4px; cursor: pointer;">Accepter</button>
+  <button onclick="rejectCookies()" style="padding: 6px 14px; background: #c62828; color: white; border: none; border-radius: 4px; cursor: pointer;">Refuser</button>
+</div>
+
+<script>
+function acceptCookies() {
+  localStorage.setItem("cookieConsent", "accepted");
+  document.getElementById("cookie-banner").style.display = "none";
+  // Ici, tu peux activer les scripts AdSense ou Analytics par exemple
+}
+
+function rejectCookies() {
+  localStorage.setItem("cookieConsent", "rejected");
+  document.getElementById("cookie-banner").style.display = "none";
+  // Ici, tu désactives les scripts optionnels
+}
+
+window.onload = function () {
+  const consent = localStorage.getItem("cookieConsent");
+  if (consent === "accepted") {
+    document.getElementById("cookie-banner").style.display = "none";
+    // Activer les scripts ici si nécessaire
+  } else if (consent === "rejected") {
+    document.getElementById("cookie-banner").style.display = "none";
+    // Ne rien activer
+  }
+};
+</script>

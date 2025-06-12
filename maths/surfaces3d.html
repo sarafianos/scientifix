@@ -1,0 +1,166 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <title>Visualisation de surfaces 3D</title>
+  <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/numeric/1.2.6/numeric.min.js"></script>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      text-align: center;
+      background-color: #fff;
+    }
+    select, input {
+      margin: 5px;
+      padding: 6px;
+      font-size: 16px;
+      width: 200px;
+    }
+    #controls {
+      margin-bottom: 20px;
+    }
+    #graph {
+      width: 90%;
+      height: 600px;
+      margin: auto;
+    }
+  </style>
+</head>
+<body>
+  <h2>Visualisation de surfaces 3D</h2>
+  <div id="controls">
+    <select id="surfaceType">
+      <option value="paraboloid">Paraboloïde z = x² + y²</option>
+      <option value="saddle">Hyperboloïde z = x² - y²</option>
+      <option value="sphere">Sphère x² + y² + z² = r²</option>
+      <option value="torus">Tore</option>
+    </select><br>
+
+    <div id="parameters"></div>
+    <button onclick="plotSurface()">Tracer</button>
+  </div>
+  <div id="graph"></div>
+
+  <script>
+    function linspace(start, end, n) {
+      return Array.from({ length: n }, (_, i) => start + i * (end - start) / (n - 1));
+    }
+
+    function plotSurface() {
+      const type = document.getElementById('surfaceType').value;
+      let x = [], y = [], z = [];
+      const u = linspace(-5, 5, 50);
+      const v = linspace(-5, 5, 50);
+
+      if (type === 'paraboloid') {
+        u.forEach((xi, i) => {
+          x[i] = []; y[i] = []; z[i] = [];
+          v.forEach((yi, j) => {
+            x[i][j] = xi;
+            y[i][j] = yi;
+            z[i][j] = xi ** 2 + yi ** 2;
+          });
+        });
+
+      } else if (type === 'saddle') {
+        u.forEach((xi, i) => {
+          x[i] = []; y[i] = []; z[i] = [];
+          v.forEach((yi, j) => {
+            x[i][j] = xi;
+            y[i][j] = yi;
+            z[i][j] = xi ** 2 - yi ** 2;
+          });
+        });
+
+      } else if (type === 'sphere') {
+        const r = 3;
+        const theta = linspace(0, Math.PI, 50);
+        const phi = linspace(0, 2 * Math.PI, 50);
+        theta.forEach((t, i) => {
+          x[i] = []; y[i] = []; z[i] = [];
+          phi.forEach((p, j) => {
+            x[i][j] = r * Math.sin(t) * Math.cos(p);
+            y[i][j] = r * Math.sin(t) * Math.sin(p);
+            z[i][j] = r * Math.cos(t);
+          });
+        });
+
+      } else if (type === 'torus') {
+        const R = 3, r = 1;
+        const theta = linspace(0, 2 * Math.PI, 50);
+        const phi = linspace(0, 2 * Math.PI, 50);
+        theta.forEach((t, i) => {
+          x[i] = []; y[i] = []; z[i] = [];
+          phi.forEach((p, j) => {
+            x[i][j] = (R + r * Math.cos(t)) * Math.cos(p);
+            y[i][j] = (R + r * Math.cos(t)) * Math.sin(p);
+            z[i][j] = r * Math.sin(t);
+          });
+        });
+      }
+
+      const surface = {
+        type: 'surface',
+        x: x,
+        y: y,
+        z: z,
+        colorscale: 'Blues',
+        showscale: false,
+        lighting: { ambient: 0.5, diffuse: 0.9, specular: 0.5 },
+        lightposition: { x: 100, y: 100, z: 200 },
+        opacity: 1
+      };
+
+      const layout = {
+        scene: {
+          aspectmode: 'data',
+          xaxis: { showgrid: false, visible: false },
+          yaxis: { showgrid: false, visible: false },
+          zaxis: { showgrid: false, visible: false },
+        },
+        margin: { t: 0 },
+      };
+
+      Plotly.newPlot('graph', [surface], layout);
+    }
+
+    // Initialisation
+    plotSurface();
+  </script>
+</body>
+</html>
+
+
+<!-- Bannière de cookies RGPD -->
+<div id="cookie-banner" style="position: fixed; bottom: 0; left: 0; right: 0; background: #2c3e50; color: white; padding: 15px; text-align: center; z-index: 9999;">
+  <span>Ce site utilise des cookies pour améliorer votre expérience et afficher des publicités personnalisées (Google AdSense). En continuant, vous acceptez notre <a href="politique-confidentialite.html" style="color: #00bcd4; text-decoration: underline;">politique de confidentialité</a>.</span>
+  <br><br>
+  <button onclick="acceptCookies()" style="margin-right: 10px; padding: 6px 14px; background: #00c853; color: white; border: none; border-radius: 4px; cursor: pointer;">Accepter</button>
+  <button onclick="rejectCookies()" style="padding: 6px 14px; background: #c62828; color: white; border: none; border-radius: 4px; cursor: pointer;">Refuser</button>
+</div>
+
+<script>
+function acceptCookies() {
+  localStorage.setItem("cookieConsent", "accepted");
+  document.getElementById("cookie-banner").style.display = "none";
+  // Ici, tu peux activer les scripts AdSense ou Analytics par exemple
+}
+
+function rejectCookies() {
+  localStorage.setItem("cookieConsent", "rejected");
+  document.getElementById("cookie-banner").style.display = "none";
+  // Ici, tu désactives les scripts optionnels
+}
+
+window.onload = function () {
+  const consent = localStorage.getItem("cookieConsent");
+  if (consent === "accepted") {
+    document.getElementById("cookie-banner").style.display = "none";
+    // Activer les scripts ici si nécessaire
+  } else if (consent === "rejected") {
+    document.getElementById("cookie-banner").style.display = "none";
+    // Ne rien activer
+  }
+};
+</script>

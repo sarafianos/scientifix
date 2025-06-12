@@ -1,0 +1,162 @@
+
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Calculateur de Cercle</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      margin: 0;
+      padding: 0;
+      background-color: #f4f4f4;
+    }
+    .container {
+      max-width: 600px;
+      margin: 40px auto;
+      background: #fff;
+      padding: 20px;
+      border-radius: 10px;
+      box-shadow: 0 0 10px rgba(0,0,0,0.1);
+      text-align: center;
+    }
+    h1 {
+      color: #007BFF;
+    }
+    label, input {
+      display: block;
+      margin: 10px auto;
+      font-size: 1.1rem;
+    }
+    input[type="number"] {
+      padding: 10px;
+      width: 80%;
+    }
+    button {
+      padding: 10px 20px;
+      margin-top: 15px;
+      background-color: #007BFF;
+      color: white;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+    }
+    button:hover {
+      background-color: #0056b3;
+    }
+    .result {
+      margin-top: 20px;
+      font-size: 1.2rem;
+      color: #333;
+    }
+    canvas {
+      margin-top: 30px;
+      border: 1px solid #ddd;
+      background: #fff;
+      display: block;
+      margin-left: auto;
+      margin-right: auto;
+    }
+    .formules {
+      margin-top: 20px;
+      font-size: 1.1rem;
+      color: #222;
+    }
+    .illustration {
+      margin-top: 20px;
+    }
+    .illustration img {
+      max-width: 200px;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>Calculateur de Cercle</h1>
+    
+    <div class="illustration">
+      <img src="cercle.svg" alt="Illustration d'un cercle">
+    </div>
+
+    <div class="formules">
+      <strong>Formules :</strong><br>
+      Aire = π × r²<br>
+      Périmètre = 2 × π × r
+    </div>
+
+    <label for="rayon">Rayon (r) :</label>
+    <input type="number" id="rayon" placeholder="Entrez le rayon">
+    <button onclick="calculerCercle()">Calculer</button>
+    <div class="result" id="result"></div>
+    <canvas id="cercleCanvas" width="300" height="300"></canvas>
+  </div>
+  <script>
+    function calculerCercle() {
+      const rayon = parseFloat(document.getElementById('rayon').value);
+      const resultDiv = document.getElementById('result');
+      if (isNaN(rayon) || rayon <= 0) {
+        resultDiv.innerText = "Veuillez entrer une valeur valide pour le rayon.";
+        return;
+      }
+      const aire = Math.PI * rayon * rayon;
+      const perimetre = 2 * Math.PI * rayon;
+      resultDiv.innerHTML = `Aire : ${aire.toFixed(2)} unités²<br> Périmètre : ${perimetre.toFixed(2)} unités`;
+      dessinerCercle(rayon);
+    }
+
+    function dessinerCercle(rayon) {
+      const canvas = document.getElementById("cercleCanvas");
+      const ctx = canvas.getContext("2d");
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+      const maxRadius = 100;
+      const scale = maxRadius / rayon;
+      const r = rayon * scale;
+      const centerX = canvas.width / 2;
+      const centerY = canvas.height / 2;
+      ctx.beginPath();
+      ctx.arc(centerX, centerY, r, 0, 2 * Math.PI);
+      ctx.strokeStyle = "#007BFF";
+      ctx.lineWidth = 2;
+      ctx.stroke();
+      ctx.font = "14px Arial";
+      ctx.fillStyle = "#000";
+      ctx.fillText(`r = ${rayon}`, centerX - 10, centerY - r - 10);
+    }
+  </script>
+</body>
+</html>
+
+
+<!-- Bannière de cookies RGPD -->
+<div id="cookie-banner" style="position: fixed; bottom: 0; left: 0; right: 0; background: #2c3e50; color: white; padding: 15px; text-align: center; z-index: 9999;">
+  <span>Ce site utilise des cookies pour améliorer votre expérience et afficher des publicités personnalisées (Google AdSense). En continuant, vous acceptez notre <a href="politique-confidentialite.html" style="color: #00bcd4; text-decoration: underline;">politique de confidentialité</a>.</span>
+  <br><br>
+  <button onclick="acceptCookies()" style="margin-right: 10px; padding: 6px 14px; background: #00c853; color: white; border: none; border-radius: 4px; cursor: pointer;">Accepter</button>
+  <button onclick="rejectCookies()" style="padding: 6px 14px; background: #c62828; color: white; border: none; border-radius: 4px; cursor: pointer;">Refuser</button>
+</div>
+
+<script>
+function acceptCookies() {
+  localStorage.setItem("cookieConsent", "accepted");
+  document.getElementById("cookie-banner").style.display = "none";
+  // Ici, tu peux activer les scripts AdSense ou Analytics par exemple
+}
+
+function rejectCookies() {
+  localStorage.setItem("cookieConsent", "rejected");
+  document.getElementById("cookie-banner").style.display = "none";
+  // Ici, tu désactives les scripts optionnels
+}
+
+window.onload = function () {
+  const consent = localStorage.getItem("cookieConsent");
+  if (consent === "accepted") {
+    document.getElementById("cookie-banner").style.display = "none";
+    // Activer les scripts ici si nécessaire
+  } else if (consent === "rejected") {
+    document.getElementById("cookie-banner").style.display = "none";
+    // Ne rien activer
+  }
+};
+</script>

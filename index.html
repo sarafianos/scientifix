@@ -1,0 +1,133 @@
+<!DOCTYPE html> 
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Scientifix</title>
+  <style>
+    body {
+      margin: 0;
+      font-family: Arial, sans-serif;
+      background: #f2f2f2;
+    }
+    header {
+      background-color: #007BFF;
+      color: white;
+      padding: 20px;
+      text-align: center;
+      font-size: 1.5rem;
+    }
+    .container {
+      max-width: 900px;
+      margin: auto;
+      padding: 20px;
+    }
+    .theme {
+      background-color: white;
+      border-radius: 10px;
+      padding: 20px;
+      margin: 20px 0;
+      box-shadow: 0 0 10px rgba(0,0,0,0.1);
+      transition: transform 0.2s ease;
+    }
+    .theme:hover {
+      transform: scale(1.02);
+    }
+    .theme h2 {
+      color: #007BFF;
+    }
+    .theme p {
+      color: #333;
+    }
+    .theme a {
+      display: inline-block;
+      margin-top: 10px;
+      text-decoration: none;
+      color: white;
+      background: #007BFF;
+      padding: 10px 15px;
+      border-radius: 5px;
+      transition: background 0.3s ease;
+    }
+    .theme a:hover {
+      background: #0056b3;
+    }
+    @media (max-width: 600px) {
+      .theme {
+        padding: 15px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <header>
+    Bienvenue sur Scientifix
+  </header>
+  
+  <object type="image/svg+xml"
+  data="Scientifiques_ai.svg"
+  ></object>
+  <div class="container">
+    <div class="theme">
+      <h2>Mathématiques</h2>
+      <p>Accédez à des calculateurs pour les théorèmes, fonctions, géométrie, probabilités, et plus.</p>
+      <a href="maths.html" target="_blank">Explorez les Mathématiques</a>
+    </div>
+    <div class="theme">
+      <h2>Physique</h2>
+      <p>Explorez des outils pour les lois du mouvement, électricité, mécanique, et thermodynamique.</p>
+      <a href="physique.html">Découvrez la Physique</a>
+    </div>
+    <div class="theme">
+      <h2>Chimie</h2>
+      <p>Utilisez des calculateurs pour les masses molaires, réactions chimiques, concentrations, etc.</p>
+      <a href="chimie.html">Etudiez la chimie</a>
+    </div>
+	<div class="theme">
+      <a href="contact.html">Contact</a>
+    </div>
+	<div class="theme">
+      <a href="aPropos.html">A propos</a>
+    </div>
+	<div class="theme">
+      <a href="confidentialite.html">Politique de confidentialité</a>
+    </div>
+  </div>
+</body>
+</html>
+
+
+
+
+<!-- Bannière de cookies RGPD -->
+<div id="cookie-banner" style="position: fixed; bottom: 0; left: 0; right: 0; background: #2c3e50; color: white; padding: 15px; text-align: center; z-index: 9999;">
+  <span>Ce site utilise des cookies pour améliorer votre expérience et afficher des publicités personnalisées (Google AdSense). En continuant, vous acceptez notre <a href="politique-confidentialite.html" style="color: #00bcd4; text-decoration: underline;">politique de confidentialité</a>.</span>
+  <br><br>
+  <button onclick="acceptCookies()" style="margin-right: 10px; padding: 6px 14px; background: #00c853; color: white; border: none; border-radius: 4px; cursor: pointer;">Accepter</button>
+  <button onclick="rejectCookies()" style="padding: 6px 14px; background: #c62828; color: white; border: none; border-radius: 4px; cursor: pointer;">Refuser</button>
+</div>
+
+<script>
+function acceptCookies() {
+  localStorage.setItem("cookieConsent", "accepted");
+  document.getElementById("cookie-banner").style.display = "none";
+  // Ici, tu peux activer les scripts AdSense ou Analytics par exemple
+}
+
+function rejectCookies() {
+  localStorage.setItem("cookieConsent", "rejected");
+  document.getElementById("cookie-banner").style.display = "none";
+  // Ici, tu désactives les scripts optionnels
+}
+
+window.onload = function () {
+  const consent = localStorage.getItem("cookieConsent");
+  if (consent === "accepted") {
+    document.getElementById("cookie-banner").style.display = "none";
+    // Activer les scripts ici si nécessaire
+  } else if (consent === "rejected") {
+    document.getElementById("cookie-banner").style.display = "none";
+    // Ne rien activer
+  }
+};
+</script>

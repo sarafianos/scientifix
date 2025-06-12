@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <title>Loi d'Ohm - Simulation</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background: #f5f5f5;
+      text-align: center;
+      padding: 30px;
+    }
+    h1 {
+      margin-bottom: 0;
+    }
+    .equation {
+      font-size: 1.4em;
+      margin: 10px 0 30px;
+    }
+    .inputs {
+      display: flex;
+      justify-content: center;
+      gap: 40px;
+      margin-bottom: 20px;
+    }
+    .inputs label {
+      display: block;
+      font-weight: bold;
+      margin-bottom: 5px;
+    }
+    .inputs input {
+      width: 80px;
+      padding: 5px;
+      font-size: 1em;
+    }
+    .result {
+      font-size: 1.2em;
+      margin-top: 20px;
+    }
+    button {
+      font-size: 1em;
+      padding: 10px 20px;
+      cursor: pointer;
+    }
+  </style>
+</head>
+<body>
+
+  <h1>Loi d'Ohm</h1>
+  <div class="equation">U = R × I</div>
+
+  <div class="inputs">
+    <div>
+      <label for="u">Tension U (V)</label>
+      <input type="number" id="u" value="5" step="0.1">
+    </div>
+    <div>
+      <label for="r">Résistance R (Ω)</label>
+      <input type="number" id="r" value="5" step="0.1">
+    </div>
+  </div>
+
+  <button onclick="calculer()">Calculer</button>
+
+  <div class="result">
+    Courant I = <span id="iVal">?</span> A
+  </div>
+
+  <script>
+    function calculer() {
+      const u = parseFloat(document.getElementById("u").value);
+      const r = parseFloat(document.getElementById("r").value);
+      const iVal = document.getElementById("iVal");
+
+      if (r !== 0) {
+        const i = u / r;
+        iVal.textContent = i.toFixed(2);
+      } else {
+        iVal.textContent = "Indéfini (division par 0)";
+      }
+    }
+  </script>
+
+</body>
+</html>
+
+
+<!-- Bannière de cookies RGPD -->
+<div id="cookie-banner" style="position: fixed; bottom: 0; left: 0; right: 0; background: #2c3e50; color: white; padding: 15px; text-align: center; z-index: 9999;">
+  <span>Ce site utilise des cookies pour améliorer votre expérience et afficher des publicités personnalisées (Google AdSense). En continuant, vous acceptez notre <a href="politique-confidentialite.html" style="color: #00bcd4; text-decoration: underline;">politique de confidentialité</a>.</span>
+  <br><br>
+  <button onclick="acceptCookies()" style="margin-right: 10px; padding: 6px 14px; background: #00c853; color: white; border: none; border-radius: 4px; cursor: pointer;">Accepter</button>
+  <button onclick="rejectCookies()" style="padding: 6px 14px; background: #c62828; color: white; border: none; border-radius: 4px; cursor: pointer;">Refuser</button>
+</div>
+
+<script>
+function acceptCookies() {
+  localStorage.setItem("cookieConsent", "accepted");
+  document.getElementById("cookie-banner").style.display = "none";
+  // Ici, tu peux activer les scripts AdSense ou Analytics par exemple
+}
+
+function rejectCookies() {
+  localStorage.setItem("cookieConsent", "rejected");
+  document.getElementById("cookie-banner").style.display = "none";
+  // Ici, tu désactives les scripts optionnels
+}
+
+window.onload = function () {
+  const consent = localStorage.getItem("cookieConsent");
+  if (consent === "accepted") {
+    document.getElementById("cookie-banner").style.display = "none";
+    // Activer les scripts ici si nécessaire
+  } else if (consent === "rejected") {
+    document.getElementById("cookie-banner").style.display = "none";
+    // Ne rien activer
+  }
+};
+</script>

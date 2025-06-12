@@ -1,0 +1,189 @@
+<!DOCTYPE html> 
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Calcul du Théorème de Pythagore</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      padding: 20px;
+      margin: 0;
+      background-color: #f4f4f4;
+    }
+    .container {
+      background: white;
+      padding: 20px;
+      border-radius: 10px;
+      max-width: 500px;
+      margin: auto;
+      box-shadow: 0 0 10px rgba(0,0,0,0.1);
+      text-align: center;
+      animation: fadeIn 1s ease-in-out;
+    }
+    label, input {
+      display: block;
+      margin: 10px auto;
+      width: 80%;
+      font-size: 1rem;
+    }
+    input {
+      padding: 8px;
+      border-radius: 5px;
+      border: 1px solid #ccc;
+    }
+    button {
+      padding: 10px;
+      width: 80%;
+      background-color: #007BFF;
+      color: white;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+      transition: background-color 0.3s ease;
+    }
+    button:hover {
+      background-color: #0056b3;
+    }
+    .result {
+      margin-top: 20px;
+      font-weight: bold;
+      font-size: 1.2rem;
+    }
+    .canvas-container {
+      display: flex;
+      justify-content: center;
+      margin-top: 20px;
+    }
+    canvas {
+      background: #eaeaea;
+      border-radius: 5px;
+      transition: transform 0.3s ease;
+    }
+    canvas:hover {
+      transform: scale(1.02);
+    }
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(20px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+    @media (max-width: 600px) {
+      .container {
+        width: 90%;
+        padding: 15px;
+      }
+      canvas {
+        width: 100%;
+        height: auto;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h2>Pythagore: Calcul de l'hypoténuse</h2>
+    <label for="coteA">Longueur du côté a :</label>
+    <input type="number" id="coteA" placeholder="Ex: 3">
+
+    <label for="coteB">Longueur du côté b :</label>
+    <input type="number" id="coteB" placeholder="Ex: 4">
+
+    <button onclick="calculerHypotenuse()">Calculer l'hypoténuse</button>
+
+    <div class="result" id="resultat"></div>
+
+    <div class="canvas-container">
+      <canvas id="triangleCanvas" width="500" height="400"></canvas>
+    </div>
+  </div>
+
+  <script>
+    function calculerHypotenuse() {
+      const a = parseFloat(document.getElementById("coteA").value);
+      const b = parseFloat(document.getElementById("coteB").value);
+
+      if (isNaN(a) || isNaN(b) || a <= 0 || b <= 0) {
+        document.getElementById("resultat").textContent = "Veuillez entrer deux valeurs valides et positives.";
+        return;
+      }
+
+      const hypotenuse = Math.sqrt(a * a + b * b).toFixed(2);
+      document.getElementById("resultat").textContent = `L'hypoténuse est : ${hypotenuse}`;
+      dessinerTriangle(a, b);
+    }
+
+    function dessinerTriangle(a, b) {
+      const canvas = document.getElementById("triangleCanvas");
+      const ctx = canvas.getContext("2d");
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+      const padding = 40;
+      const scale = Math.min((canvas.width - padding * 2) / a, (canvas.height - padding * 2) / b);
+
+      const originX = (canvas.width - a * scale) / 2;
+      const originY = canvas.height - padding;
+
+      const x0 = originX;
+      const y0 = originY;
+      const x1 = x0 + a * scale;
+      const y1 = y0;
+      const x2 = x0;
+      const y2 = y0 - b * scale;
+
+      ctx.beginPath();
+      ctx.moveTo(x0, y0);
+      ctx.lineTo(x1, y1);
+      ctx.lineTo(x2, y2);
+      ctx.closePath();
+
+      ctx.fillStyle = "#cce5ff";
+      ctx.fill();
+      ctx.strokeStyle = "#333";
+      ctx.lineWidth = 2;
+      ctx.stroke();
+
+      ctx.fillStyle = "black";
+      ctx.font = "16px Arial";
+      ctx.fillText("a = " + a, (x0 + x1) / 2 - 10, y0 + 20);
+      ctx.fillText("b = " + b, x0 - 40, (y0 + y2) / 2);
+      ctx.fillText("c = " + Math.sqrt(a * a + b * b).toFixed(2), (x1 + x2) / 2, (y1 + y2) / 2 - 10);
+    }
+  </script>
+</body>
+</html>
+
+
+<!-- Bannière de cookies RGPD -->
+<div id="cookie-banner" style="position: fixed; bottom: 0; left: 0; right: 0; background: #2c3e50; color: white; padding: 15px; text-align: center; z-index: 9999;">
+  <span>Ce site utilise des cookies pour améliorer votre expérience et afficher des publicités personnalisées (Google AdSense). En continuant, vous acceptez notre <a href="politique-confidentialite.html" style="color: #00bcd4; text-decoration: underline;">politique de confidentialité</a>.</span>
+  <br><br>
+  <button onclick="acceptCookies()" style="margin-right: 10px; padding: 6px 14px; background: #00c853; color: white; border: none; border-radius: 4px; cursor: pointer;">Accepter</button>
+  <button onclick="rejectCookies()" style="padding: 6px 14px; background: #c62828; color: white; border: none; border-radius: 4px; cursor: pointer;">Refuser</button>
+</div>
+
+<script>
+function acceptCookies() {
+  localStorage.setItem("cookieConsent", "accepted");
+  document.getElementById("cookie-banner").style.display = "none";
+  // Ici, tu peux activer les scripts AdSense ou Analytics par exemple
+}
+
+function rejectCookies() {
+  localStorage.setItem("cookieConsent", "rejected");
+  document.getElementById("cookie-banner").style.display = "none";
+  // Ici, tu désactives les scripts optionnels
+}
+
+window.onload = function () {
+  const consent = localStorage.getItem("cookieConsent");
+  if (consent === "accepted") {
+    document.getElementById("cookie-banner").style.display = "none";
+    // Activer les scripts ici si nécessaire
+  } else if (consent === "rejected") {
+    document.getElementById("cookie-banner").style.display = "none";
+    // Ne rien activer
+  }
+};
+</script>
+
+

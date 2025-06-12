@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>À propos - Mon Site Scientifique</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      max-width: 900px;
+      margin: 40px auto;
+      padding: 0 20px;
+      color: #333;
+      line-height: 1.6;
+      background: #f9f9f9;
+    }
+    h1 {
+      color: #2c3e50;
+      text-align: center;
+    }
+    p {
+      margin-bottom: 1.2em;
+    }
+    .highlight {
+      color: #2980b9;
+      font-weight: bold;
+    }
+    footer {
+      margin-top: 40px;
+      font-size: 0.9em;
+      color: #777;
+      text-align: center;
+    }
+  </style>
+</head>
+<body>
+  <h1>À propos de Mon Site Scientifique</h1>
+
+  <p>Bienvenue sur <span class="highlight">Mon Site Scientifique</span>, un espace dédié à la vulgarisation et à l’apprentissage des concepts scientifiques. Notre mission est de rendre la science accessible, claire et passionnante pour tous, que vous soyez étudiant, enseignant ou simplement curieux.</p>
+
+  <p>Ce site propose des articles, des outils interactifs, des simulations et des visualisations 3D pour aider à mieux comprendre les mathématiques, la physique, la chimie, et d’autres disciplines scientifiques.</p>
+
+  <p><strong>Pourquoi ce site ?</strong><br/>
+  La science peut parfois sembler complexe ou abstraite. En combinant explications simples, exemples concrets, et outils interactifs, nous souhaitons faciliter l’apprentissage et stimuler la curiosité scientifique.</p>
+
+  <p><strong>À propos de l’auteur</strong><br/>
+  Etant passionné(e) par la science et le partage des connaissances. Ce site est le fruit de nombreuses heures de recherche, de développement et de pédagogie, afin de proposer un contenu fiable et didactique.</p>
+
+  <p>Si vous avez des questions, suggestions ou souhaitez collaborer, n’hésitez pas à <a href="contact.html">me contacter</a>.</p>
+
+  <footer>
+    &copy; 2025 Mon Site Scientifique – Tous droits réservés.
+  </footer>
+</body>
+</html>
+
+
+
+<!-- Bannière de cookies RGPD -->
+<div id="cookie-banner" style="position: fixed; bottom: 0; left: 0; right: 0; background: #2c3e50; color: white; padding: 15px; text-align: center; z-index: 9999;">
+  <span>Ce site utilise des cookies pour améliorer votre expérience et afficher des publicités personnalisées (Google AdSense). En continuant, vous acceptez notre <a href="politique-confidentialite.html" style="color: #00bcd4; text-decoration: underline;">politique de confidentialité</a>.</span>
+  <br><br>
+  <button onclick="acceptCookies()" style="margin-right: 10px; padding: 6px 14px; background: #00c853; color: white; border: none; border-radius: 4px; cursor: pointer;">Accepter</button>
+  <button onclick="rejectCookies()" style="padding: 6px 14px; background: #c62828; color: white; border: none; border-radius: 4px; cursor: pointer;">Refuser</button>
+</div>
+
+<script>
+function acceptCookies() {
+  localStorage.setItem("cookieConsent", "accepted");
+  document.getElementById("cookie-banner").style.display = "none";
+  // Ici, tu peux activer les scripts AdSense ou Analytics par exemple
+}
+
+function rejectCookies() {
+  localStorage.setItem("cookieConsent", "rejected");
+  document.getElementById("cookie-banner").style.display = "none";
+  // Ici, tu désactives les scripts optionnels
+}
+
+window.onload = function () {
+  const consent = localStorage.getItem("cookieConsent");
+  if (consent === "accepted") {
+    document.getElementById("cookie-banner").style.display = "none";
+    // Activer les scripts ici si nécessaire
+  } else if (consent === "rejected") {
+    document.getElementById("cookie-banner").style.display = "none";
+    // Ne rien activer
+  }
+};
+</script>

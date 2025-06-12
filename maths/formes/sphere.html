@@ -1,0 +1,185 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <title>Calculateur de Sphère</title>
+  <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background: #fff;
+      margin: 0;
+      padding: 0;
+    }
+    .container {
+      max-width: 600px;
+      margin: 40px auto;
+      padding: 20px;
+      background: #f9f9f9;
+      border-radius: 12px;
+      box-shadow: 0 0 10px rgba(0,0,0,0.1);
+      text-align: center;
+    }
+    h1 {
+      color: #007BFF;
+    }
+    img {
+      max-width: 200px;
+      display: block;
+      margin: 10px auto;
+    }
+    .formules {
+      background: #eef;
+      padding: 10px;
+      border-radius: 8px;
+      margin-bottom: 15px;
+    }
+    label, input {
+      display: block;
+      margin: 10px auto;
+      font-size: 1.1rem;
+    }
+    input[type="number"] {
+      padding: 10px;
+      width: 80%;
+    }
+    button {
+      padding: 10px 20px;
+      margin-top: 15px;
+      background-color: #007BFF;
+      color: white;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+    }
+    button:hover {
+      background-color: #0056b3;
+    }
+    .result {
+      margin-top: 20px;
+      font-size: 1.2rem;
+      color: #333;
+    }
+    #spherePlot {
+      margin-top: 30px;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>Calculateur de Sphère</h1>
+    <img src="sphere.svg" alt="Illustration sphère">
+   
+    <div class="formules">
+      Surface = 4πr²<br>
+      Volume = (4/3)πr³
+    </div>
+
+    <label for="rayon">Rayon (r) :</label>
+    <input type="number" id="rayon" placeholder="Entrez le rayon">
+    <button onclick="calculerSphere()">Calculer</button>
+
+    <div class="result" id="result"></div>
+
+    <div id="spherePlot" style="width:100%;height:400px;"></div>
+  </div>
+
+  <script>
+    function calculerSphere() {
+      const r = parseFloat(document.getElementById('rayon').value);
+      const resultDiv = document.getElementById('result');
+      if (isNaN(r) || r <= 0) {
+        resultDiv.innerText = "Veuillez entrer un rayon valide.";
+        return;
+      }
+
+      const surface = 4 * Math.PI * r * r;
+      const volume = (4 / 3) * Math.PI * r * r * r;
+
+      resultDiv.innerHTML = `
+        Surface : ${surface.toFixed(2)} unités²<br>
+        Volume : ${volume.toFixed(2)} unités³
+      `;
+
+      afficherSphere(r);
+    }
+
+    function afficherSphere(radius) {
+      const theta = [];
+      const phi = [];
+      const steps = 50;
+
+      for (let i = 0; i <= steps; i++) {
+        theta.push(i * Math.PI / steps);
+        phi.push(i * 2 * Math.PI / steps);
+      }
+
+      const x = [], y = [], z = [];
+
+      for (let i = 0; i < theta.length; i++) {
+        x[i] = [], y[i] = [], z[i] = [];
+        for (let j = 0; j < phi.length; j++) {
+          x[i][j] = radius * Math.sin(theta[i]) * Math.cos(phi[j]);
+          y[i][j] = radius * Math.sin(theta[i]) * Math.sin(phi[j]);
+          z[i][j] = radius * Math.cos(theta[i]);
+        }
+      }
+
+      const data = [{
+        type: 'surface',
+        x: x,
+        y: y,
+        z: z,
+        colorscale: [[0, '#3399ff'], [1, '#3399ff']],
+        showscale: false,
+        contours: { z: { show: false } },
+        opacity: 1
+      }];
+
+      const layout = {
+        margin: { t: 0, b: 0, l: 0, r: 0 },
+        scene: {
+          xaxis: { visible: false },
+          yaxis: { visible: false },
+          zaxis: { visible: false }
+        }
+      };
+
+      Plotly.newPlot('spherePlot', data, layout, { responsive: true });
+    }
+  </script>
+</body>
+</html>
+
+<!-- Bannière de cookies RGPD -->
+<div id="cookie-banner" style="position: fixed; bottom: 0; left: 0; right: 0; background: #2c3e50; color: white; padding: 15px; text-align: center; z-index: 9999;">
+  <span>Ce site utilise des cookies pour améliorer votre expérience et afficher des publicités personnalisées (Google AdSense). En continuant, vous acceptez notre <a href="politique-confidentialite.html" style="color: #00bcd4; text-decoration: underline;">politique de confidentialité</a>.</span>
+  <br><br>
+  <button onclick="acceptCookies()" style="margin-right: 10px; padding: 6px 14px; background: #00c853; color: white; border: none; border-radius: 4px; cursor: pointer;">Accepter</button>
+  <button onclick="rejectCookies()" style="padding: 6px 14px; background: #c62828; color: white; border: none; border-radius: 4px; cursor: pointer;">Refuser</button>
+</div>
+
+<script>
+function acceptCookies() {
+  localStorage.setItem("cookieConsent", "accepted");
+  document.getElementById("cookie-banner").style.display = "none";
+  // Ici, tu peux activer les scripts AdSense ou Analytics par exemple
+}
+
+function rejectCookies() {
+  localStorage.setItem("cookieConsent", "rejected");
+  document.getElementById("cookie-banner").style.display = "none";
+  // Ici, tu désactives les scripts optionnels
+}
+
+window.onload = function () {
+  const consent = localStorage.getItem("cookieConsent");
+  if (consent === "accepted") {
+    document.getElementById("cookie-banner").style.display = "none";
+    // Activer les scripts ici si nécessaire
+  } else if (consent === "rejected") {
+    document.getElementById("cookie-banner").style.display = "none";
+    // Ne rien activer
+  }
+};
+</script>

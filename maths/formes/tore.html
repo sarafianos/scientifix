@@ -1,0 +1,194 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Calculateur de Tore</title>
+  <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background: #f9f9f9;
+      margin: 0;
+      padding: 0;
+    }
+    .container {
+      max-width: 700px;
+      margin: 40px auto;
+      background: white;
+      padding: 20px;
+      border-radius: 12px;
+      box-shadow: 0 0 12px rgba(0, 0, 0, 0.1);
+      text-align: center;
+    }
+    h1 {
+      color: #007BFF;
+    }
+    img {
+      max-width: 220px;
+      display: block;
+      margin: 10px auto;
+    }
+    .formules {
+      background: #eef;
+      padding: 10px;
+      border-radius: 8px;
+      margin-bottom: 20px;
+    }
+    label {
+      font-size: 1.1rem;
+      display: block;
+      margin-top: 15px;
+    }
+    input[type="number"] {
+      padding: 10px;
+      width: 80%;
+      font-size: 1.1rem;
+      margin-top: 5px;
+    }
+    button {
+      padding: 10px 20px;
+      margin-top: 20px;
+      background-color: #007BFF;
+      color: white;
+      border: none;
+      border-radius: 6px;
+      font-size: 1rem;
+      cursor: pointer;
+    }
+    button:hover {
+      background-color: #0056b3;
+    }
+    .result {
+      margin-top: 20px;
+      font-size: 1.2rem;
+    }
+    #torusPlot {
+      margin-top: 40px;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>Calculateur de Tore</h1>
+    <img src="tore.svg" alt="Illustration du tore" />
+    <div class="formules">
+      Aire = 4π² × R × r<br>
+      Volume = 2π² × R × r²
+    </div>
+
+    <label for="R">Rayon principal (R) :</label>
+    <input type="number" id="R" placeholder="Entrez R" />
+
+    <label for="r">Rayon du tube (r) :</label>
+    <input type="number" id="r" placeholder="Entrez r" />
+
+	<div class=bouton-calcul">
+		<button onclick="calculerTore()">Calculer</button>
+	</div>
+    <div class="result" id="result"></div>
+    <div id="torusPlot"></div>
+  </div>
+
+  <script>
+    function calculerTore() {
+      const R = parseFloat(document.getElementById("R").value);
+      const r = parseFloat(document.getElementById("r").value);
+      const resultDiv = document.getElementById("result");
+
+      if (isNaN(R) || isNaN(r) || R <= 0 || r <= 0 || R <= r) {
+        resultDiv.innerHTML = "Veuillez entrer des valeurs valides avec R > r > 0.";
+        return;
+      }
+
+      const aire = 4 * Math.PI * Math.PI * R * r;
+      const volume = 2 * Math.PI * Math.PI * R * r * r;
+
+      resultDiv.innerHTML = `
+        Aire : ${aire.toFixed(2)} unités²<br>
+        Volume : ${volume.toFixed(2)} unités³
+      `;
+
+      const uSteps = 50;
+      const vSteps = 50;
+      const u = [...Array(uSteps).keys()].map(i => (i / (uSteps - 1)) * 2 * Math.PI);
+      const v = [...Array(vSteps).keys()].map(i => (i / (vSteps - 1)) * 2 * Math.PI);
+      const x = [], y = [], z = [];
+
+      for (let i = 0; i < uSteps; i++) {
+        x[i] = [];
+        y[i] = [];
+        z[i] = [];
+        for (let j = 0; j < vSteps; j++) {
+          x[i][j] = (R + r * Math.cos(v[j])) * Math.cos(u[i]);
+          y[i][j] = (R + r * Math.cos(v[j])) * Math.sin(u[i]);
+          z[i][j] = r * Math.sin(v[j]);
+        }
+      }
+
+      const data = [{
+        type: 'surface',
+        x: x,
+        y: y,
+        z: z,
+        colorscale: [[0, '#3399FF'], [1, '#3399FF']],
+        showscale: false,
+        lighting: {
+          ambient: 0.4,
+          diffuse: 0.6,
+          fresnel: 0.1,
+          specular: 0.05,
+          roughness: 0.9
+        },
+        lightposition: {x: 100, y: 200, z: 0}
+      }];
+
+      const layout = {
+        margin: {l: 0, r: 0, b: 0, t: 0},
+        scene: {
+          aspectmode: 'data',
+          xaxis: {visible: false, showgrid: false},
+          yaxis: {visible: false, showgrid: false},
+          zaxis: {visible: false, showgrid: false},
+        }
+      };
+
+      Plotly.newPlot('torusPlot', data, layout);
+    }
+  </script>
+</body>
+</html>
+
+
+<!-- Bannière de cookies RGPD -->
+<div id="cookie-banner" style="position: fixed; bottom: 0; left: 0; right: 0; background: #2c3e50; color: white; padding: 15px; text-align: center; z-index: 9999;">
+  <span>Ce site utilise des cookies pour améliorer votre expérience et afficher des publicités personnalisées (Google AdSense). En continuant, vous acceptez notre <a href="politique-confidentialite.html" style="color: #00bcd4; text-decoration: underline;">politique de confidentialité</a>.</span>
+  <br><br>
+  <button onclick="acceptCookies()" style="margin-right: 10px; padding: 6px 14px; background: #00c853; color: white; border: none; border-radius: 4px; cursor: pointer;">Accepter</button>
+  <button onclick="rejectCookies()" style="padding: 6px 14px; background: #c62828; color: white; border: none; border-radius: 4px; cursor: pointer;">Refuser</button>
+</div>
+
+<script>
+function acceptCookies() {
+  localStorage.setItem("cookieConsent", "accepted");
+  document.getElementById("cookie-banner").style.display = "none";
+  // Ici, tu peux activer les scripts AdSense ou Analytics par exemple
+}
+
+function rejectCookies() {
+  localStorage.setItem("cookieConsent", "rejected");
+  document.getElementById("cookie-banner").style.display = "none";
+  // Ici, tu désactives les scripts optionnels
+}
+
+window.onload = function () {
+  const consent = localStorage.getItem("cookieConsent");
+  if (consent === "accepted") {
+    document.getElementById("cookie-banner").style.display = "none";
+    // Activer les scripts ici si nécessaire
+  } else if (consent === "rejected") {
+    document.getElementById("cookie-banner").style.display = "none";
+    // Ne rien activer
+  }
+};
+</script>

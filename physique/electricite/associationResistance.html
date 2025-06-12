@@ -1,0 +1,283 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Association de résistances</title>
+<style>
+  body {
+    font-family: Arial, sans-serif;
+    margin: 20px;
+  }
+  label, input, select, button {
+    font-size: 1.1em;
+    margin: 5px 0;
+  }
+  input[type="number"] {
+    width: 80px;
+  }
+  #resistanceInputs {
+    margin-top: 10px;
+    margin-bottom: 15px;
+  }
+  svg {
+    border: 1px solid #ccc;
+    margin-top: 20px;
+    background-color: #f9f9f9;
+  }
+  #result {
+    font-weight: bold;
+    margin-top: 10px;
+  }
+</style>
+</head>
+<body>
+
+<h2>Association de résistances</h2>
+
+<label for="nbRes">Nombre de résistances :</label>
+<input type="number" id="nbRes" value="3" min="1" max="10" />
+
+<br />
+
+<label for="typeAssoc">Type d'association :</label>
+<select id="typeAssoc">
+  <option value="serie">Série</option>
+  <option value="parallele">Parallèle</option>
+</select>
+
+<div id="resistanceInputs"></div>
+
+<button id="calcBtn">Calculer</button>
+
+<div id="result"></div>
+
+<svg id="schema" width="600" height="400"></svg>
+
+<script>
+  const nbResInput = document.getElementById("nbRes");
+  const typeAssocSelect = document.getElementById("typeAssoc");
+  const resistanceInputsDiv = document.getElementById("resistanceInputs");
+  const calcBtn = document.getElementById("calcBtn");
+  const resultDiv = document.getElementById("result");
+  const svg = document.getElementById("schema");
+
+  function genererChamps() {
+    resistanceInputsDiv.innerHTML = "";
+    const nb = parseInt(nbResInput.value);
+    for(let i = 0; i < nb; i++) {
+      const label = document.createElement("label");
+      label.textContent = `Résistance R${i+1} (Ω) : `;
+      label.htmlFor = `res${i}`;
+
+      const input = document.createElement("input");
+      input.type = "number";
+      input.id = `res${i}`;
+      input.min = "0";
+      input.step = "any";
+      input.value = "10";
+
+      resistanceInputsDiv.appendChild(label);
+      resistanceInputsDiv.appendChild(input);
+      resistanceInputsDiv.appendChild(document.createElement("br"));
+    }
+  }
+
+  function calculerEquivalent() {
+    const nb = parseInt(nbResInput.value);
+    let valeurs = [];
+    for(let i = 0; i < nb; i++) {
+      const val = parseFloat(document.getElementById(`res${i}`).value);
+      if(isNaN(val) || val <= 0) {
+        alert(`Entrez une valeur positive pour R${i+1}`);
+        return null;
+      }
+      valeurs.push(val);
+    }
+    const type = typeAssocSelect.value;
+    let req = 0;
+    if(type === "serie") {
+      req = valeurs.reduce((a,b) => a + b, 0);
+    } else {
+      let sommeInv = 0;
+      for(let v of valeurs) {
+        sommeInv += 1/v;
+      }
+      req = 1 / sommeInv;
+    }
+    return req;
+  }
+
+  function dessinerSchema() {
+    svg.innerHTML = "";
+    const nb = parseInt(nbResInput.value);
+    const type = typeAssocSelect.value;
+    const width = svg.clientWidth;
+    const height = svg.clientHeight;
+
+    const resWidth = 60;
+    const resHeight = 30;
+    const gap = 20;
+    const startX = 50;
+    const startY = height/2 - resHeight/2;
+
+    if(type === "serie") {
+      const lineIn = document.createElementNS("http://www.w3.org/2000/svg", "line");
+      lineIn.setAttribute("x1", 10);
+      lineIn.setAttribute("y1", startY + resHeight/2);
+      lineIn.setAttribute("x2", startX);
+      lineIn.setAttribute("y2", startY + resHeight/2);
+      lineIn.setAttribute("stroke", "black");
+      lineIn.setAttribute("stroke-width", "2");
+      svg.appendChild(lineIn);
+
+      for(let i = 0; i < nb; i++) {
+        const rx = startX + i * (resWidth + gap);
+        const rect = document.createElementNS("http://www.w3.org/2000/svg", "rect");
+        rect.setAttribute("x", rx);
+        rect.setAttribute("y", startY);
+        rect.setAttribute("width", resWidth);
+        rect.setAttribute("height", resHeight);
+        rect.setAttribute("fill", "#ffc107");
+        rect.setAttribute("stroke", "black");
+        rect.setAttribute("stroke-width", "2");
+        svg.appendChild(rect);
+
+        const text = document.createElementNS("http://www.w3.org/2000/svg", "text");
+        text.setAttribute("x", rx + resWidth / 2);
+        text.setAttribute("y", startY + resHeight / 2 + 5);
+        text.setAttribute("text-anchor", "middle");
+        text.textContent = `R${i+1}`;
+        svg.appendChild(text);
+
+        if(i < nb - 1) {
+          const line = document.createElementNS("http://www.w3.org/2000/svg", "line");
+          line.setAttribute("x1", rx + resWidth);
+          line.setAttribute("y1", startY + resHeight / 2);
+          line.setAttribute("x2", rx + resWidth + gap);
+          line.setAttribute("y2", startY + resHeight / 2);
+          line.setAttribute("stroke", "black");
+          line.setAttribute("stroke-width", "2");
+          svg.appendChild(line);
+        }
+      }
+
+      const lineOut = document.createElementNS("http://www.w3.org/2000/svg", "line");
+      lineOut.setAttribute("x1", startX + nb * (resWidth + gap) - gap);
+      lineOut.setAttribute("y1", startY + resHeight/2);
+      lineOut.setAttribute("x2", width - 10);
+      lineOut.setAttribute("y2", startY + resHeight/2);
+      lineOut.setAttribute("stroke", "black");
+      lineOut.setAttribute("stroke-width", "2");
+      svg.appendChild(lineOut);
+
+    } else {
+      const lineInV = document.createElementNS("http://www.w3.org/2000/svg", "line");
+      lineInV.setAttribute("x1", startX - 20);
+      lineInV.setAttribute("y1", 20);
+      lineInV.setAttribute("x2", startX - 20);
+      lineInV.setAttribute("y2", height - 20);
+      lineInV.setAttribute("stroke", "black");
+      lineInV.setAttribute("stroke-width", "2");
+      svg.appendChild(lineInV);
+
+      const lineOutV = document.createElementNS("http://www.w3.org/2000/svg", "line");
+      lineOutV.setAttribute("x1", startX + resWidth + 40);
+      lineOutV.setAttribute("y1", 20);
+      lineOutV.setAttribute("x2", startX + resWidth + 40);
+      lineOutV.setAttribute("y2", height - 20);
+      lineOutV.setAttribute("stroke", "black");
+      lineOutV.setAttribute("stroke-width", "2");
+      svg.appendChild(lineOutV);
+
+      for(let i = 0; i < nb; i++) {
+        const ry = 40 + i * (resHeight + gap);
+
+        const lineInR = document.createElementNS("http://www.w3.org/2000/svg", "line");
+        lineInR.setAttribute("x1", startX - 20);
+        lineInR.setAttribute("y1", ry + resHeight/2);
+        lineInR.setAttribute("x2", startX);
+        lineInR.setAttribute("y2", ry + resHeight/2);
+        lineInR.setAttribute("stroke", "black");
+        lineInR.setAttribute("stroke-width", "2");
+        svg.appendChild(lineInR);
+
+        const rect = document.createElementNS("http://www.w3.org/2000/svg", "rect");
+        rect.setAttribute("x", startX);
+        rect.setAttribute("y", ry);
+        rect.setAttribute("width", resWidth);
+        rect.setAttribute("height", resHeight);
+        rect.setAttribute("fill", "#ffc107");
+        rect.setAttribute("stroke", "black");
+        rect.setAttribute("stroke-width", "2");
+        svg.appendChild(rect);
+
+        const text = document.createElementNS("http://www.w3.org/2000/svg", "text");
+        text.setAttribute("x", startX + resWidth / 2);
+        text.setAttribute("y", ry + resHeight / 2 + 5);
+        text.setAttribute("text-anchor", "middle");
+        text.textContent = `R${i+1}`;
+        svg.appendChild(text);
+
+        const lineOutR = document.createElementNS("http://www.w3.org/2000/svg", "line");
+        lineOutR.setAttribute("x1", startX + resWidth);
+        lineOutR.setAttribute("y1", ry + resHeight/2);
+        lineOutR.setAttribute("x2", startX + resWidth + 40);
+        lineOutR.setAttribute("y2", ry + resHeight/2);
+        lineOutR.setAttribute("stroke", "black");
+        lineOutR.setAttribute("stroke-width", "2");
+        svg.appendChild(lineOutR);
+      }
+    }
+  }
+
+  nbResInput.addEventListener("change", genererChamps);
+  typeAssocSelect.addEventListener("change", dessinerSchema);
+  calcBtn.addEventListener("click", () => {
+    const req = calculerEquivalent();
+    if(req !== null) {
+      resultDiv.textContent = `Résistance équivalente : ${req.toFixed(2)} Ω`;
+      dessinerSchema();
+    }
+  });
+
+  genererChamps();
+  dessinerSchema();
+</script>
+</body>
+</html>
+
+
+
+<!-- Bannière de cookies RGPD -->
+<div id="cookie-banner" style="position: fixed; bottom: 0; left: 0; right: 0; background: #2c3e50; color: white; padding: 15px; text-align: center; z-index: 9999;">
+  <span>Ce site utilise des cookies pour améliorer votre expérience et afficher des publicités personnalisées (Google AdSense). En continuant, vous acceptez notre <a href="politique-confidentialite.html" style="color: #00bcd4; text-decoration: underline;">politique de confidentialité</a>.</span>
+  <br><br>
+  <button onclick="acceptCookies()" style="margin-right: 10px; padding: 6px 14px; background: #00c853; color: white; border: none; border-radius: 4px; cursor: pointer;">Accepter</button>
+  <button onclick="rejectCookies()" style="padding: 6px 14px; background: #c62828; color: white; border: none; border-radius: 4px; cursor: pointer;">Refuser</button>
+</div>
+
+<script>
+function acceptCookies() {
+  localStorage.setItem("cookieConsent", "accepted");
+  document.getElementById("cookie-banner").style.display = "none";
+  // Ici, tu peux activer les scripts AdSense ou Analytics par exemple
+}
+
+function rejectCookies() {
+  localStorage.setItem("cookieConsent", "rejected");
+  document.getElementById("cookie-banner").style.display = "none";
+  // Ici, tu désactives les scripts optionnels
+}
+
+window.onload = function () {
+  const consent = localStorage.getItem("cookieConsent");
+  if (consent === "accepted") {
+    document.getElementById("cookie-banner").style.display = "none";
+    // Activer les scripts ici si nécessaire
+  } else if (consent === "rejected") {
+    document.getElementById("cookie-banner").style.display = "none";
+    // Ne rien activer
+  }
+};
+</script>
