@@ -1,0 +1,180 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Théorème de Thalès</title>
+  <style>
+    body {
+      margin: 0;
+      font-family: Arial, sans-serif;
+      background-color: #f2f2f2;
+    }
+    header {
+      background-color: #007BFF;
+      color: white;
+      padding: 20px;
+      text-align: center;
+      font-size: 1.5rem;
+    }
+    .container {
+      max-width: 900px;
+      margin: auto;
+      padding: 20px;
+    }
+    .section {
+      background-color: white;
+      border-radius: 10px;
+      padding: 20px;
+      margin: 20px 0;
+      box-shadow: 0 0 10px rgba(0,0,0,0.1);
+      transition: transform 0.2s ease;
+    }
+    .section:hover {
+      transform: scale(1.02);
+    }
+    .section h2 {
+      color: #007BFF;
+    }
+    .section p {
+      color: #333;
+    }
+    label {
+      display: block;
+      margin-top: 10px;
+    }
+    input[type="number"] {
+      width: 100%;
+      padding: 8px;
+      margin-top: 5px;
+      box-sizing: border-box;
+    }
+    button {
+      margin-top: 15px;
+      padding: 10px 15px;
+      background: #007BFF;
+      color: white;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+      transition: background 0.3s ease;
+    }
+    button:hover {
+      background: #0056b3;
+    }
+    .result {
+      margin-top: 15px;
+      font-weight: bold;
+    }
+    .svg-container {
+      text-align: center;
+      margin: 20px 0;
+    }
+  </style>
+</head>
+<body>
+  <header>Théorème de Thalès</header>
+  <div class="container">
+    <div class="section">
+      <h2>Calculateur interactif</h2>
+      <p>Complétez les valeurs connues pour appliquer le théorème de Thalès :</p>
+      <label for="AB">Longueur AB :</label>
+      <input type="number" id="AB" placeholder="Entrez AB">
+      <label for="AC">Longueur AC :</label>
+      <input type="number" id="AC" placeholder="Entrez AC">
+      <label for="AP">Longueur AP :</label>
+      <input type="number" id="AP" placeholder="Entrez AP">
+      <button onclick="calculerThales()">Calculer</button>
+      <div class="result" id="result"></div>
+    </div>
+
+    <div class="section">
+      <h2>Schéma du théorème de Thalès</h2>
+      <div class="svg-container">
+        <svg width="400" height="300" viewBox="0 0 400 300">
+          <!-- Triangle ABC -->
+          <line x1="50" y1="250" x2="350" y2="250" stroke="black" stroke-width="2"/>
+          <line x1="50" y1="250" x2="200" y2="50" stroke="black" stroke-width="2"/>
+          <line x1="200" y1="50" x2="350" y2="250" stroke="black" stroke-width="2"/>
+
+          <!-- Droite parallèle (DE) -->
+          <line x1="90" y1="200" x2="310" y2="200" stroke="red" stroke-width="2" stroke-dasharray="5,5"/>
+
+          <!-- Points -->
+          <circle cx="50" cy="250" r="4" fill="black"/>
+          <text x="40" y="265">A</text>
+          <circle cx="350" cy="250" r="4" fill="black"/>
+          <text x="355" y="265">B</text>
+          <circle cx="200" cy="50" r="4" fill="black"/>
+          <text x="205" y="45">C</text>
+          <circle cx="90" cy="200" r="4" fill="red"/>
+          <text x="75" y="195">P</text>
+          <circle cx="310" cy="200" r="4" fill="red"/>
+          <text x="315" y="195">Q</text>
+
+          <!-- Segments étiquettes -->
+          <text x="200" y="255">AB</text>
+          <text x="120" y="150">AC</text>
+          <text x="70" y="225">AP</text>
+          <text x="300" y="225">AQ</text>
+        </svg>
+      </div>
+      <p>
+        Le schéma ci-dessus illustre le théorème de Thalès : la droite (PQ) est parallèle au côté BC du triangle ABC et découpe les côtés en segments proportionnels. Ainsi, on a AP/AC = AQ/AB. Utilisez ce principe pour résoudre vos calculs !
+      </p>
+    </div>
+
+    <div class="section">
+      <h2>À propos du théorème de Thalès</h2>
+      <p>
+        Le théorème de Thalès est un pilier de la géométrie plane, permettant d’établir des rapports de proportionnalité lorsque des droites parallèles coupent les côtés d’un triangle. Attribué au mathématicien grec Thalès de Milet, ce théorème reste indispensable dans l’enseignement et les applications concrètes.
+        <br><br>
+        Dans un triangle ABC, si une droite parallèle au côté BC coupe les côtés AB et AC respectivement en P et Q, alors les segments sont proportionnels : AP/AB = AQ/AC. Cela permet de calculer une longueur manquante à partir de trois autres connues. Ce principe est largement utilisé pour résoudre des problèmes de mesures indirectes, pour vérifier des constructions ou des plans, en topographie comme en architecture.
+        <br><br>
+        Grâce à ce calculateur Scientifix, vous pouvez directement appliquer le théorème de Thalès en quelques clics. Entrez vos valeurs, vérifiez vos proportions et maîtrisez cette règle fondamentale pour réussir vos exercices et projets. Bonne géométrie !
+      </p>
+    </div>
+  </div>
+
+  <!-- Bannière cookies RGPD -->
+  <div id="cookie-banner" style="position: fixed; bottom: 0; left: 0; right: 0; background: #2c3e50; color: white; padding: 15px; text-align: center; z-index: 9999;">
+    <span>Ce site utilise des cookies pour améliorer votre expérience et afficher des publicités personnalisées (Google AdSense). En continuant, vous acceptez notre <a href="politique-confidentialite.html" style="color: #00bcd4; text-decoration: underline;">politique de confidentialité</a>.</span>
+    <br><br>
+    <button onclick="acceptCookies()" style="margin-right: 10px; padding: 6px 14px; background: #00c853; color: white; border: none; border-radius: 4px; cursor: pointer;">Accepter</button>
+    <button onclick="rejectCookies()" style="padding: 6px 14px; background: #c62828; color: white; border: none; border-radius: 4px; cursor: pointer;">Refuser</button>
+  </div>
+
+  <script>
+    function calculerThales() {
+      const AB = parseFloat(document.getElementById("AB").value);
+      const AC = parseFloat(document.getElementById("AC").value);
+      const AP = parseFloat(document.getElementById("AP").value);
+
+      if (isNaN(AB) || isNaN(AC) || isNaN(AP) || AC === 0) {
+        document.getElementById("result").innerHTML = "Veuillez remplir correctement tous les champs.";
+        return;
+      }
+
+      const AQ = (AP * AB) / AC;
+      document.getElementById("result").innerHTML = `Longueur AQ = ${AQ.toFixed(2)}`;
+    }
+
+    function acceptCookies() {
+      localStorage.setItem("cookieConsent", "accepted");
+      document.getElementById("cookie-banner").style.display = "none";
+    }
+
+    function rejectCookies() {
+      localStorage.setItem("cookieConsent", "rejected");
+      document.getElementById("cookie-banner").style.display = "none";
+    }
+
+    window.onload = function () {
+      const consent = localStorage.getItem("cookieConsent");
+      if (consent === "accepted" || consent === "rejected") {
+        document.getElementById("cookie-banner").style.display = "none";
+      }
+    };
+  </script>
+</body>
+</html>

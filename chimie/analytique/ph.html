@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Qu'est-ce que le pH ?</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      line-height: 1.6;
+      margin: 40px;
+      background-color: #f8f8f8;
+      color: #333;
+    }
+    header {
+      text-align: center;
+      background-color: #007BFF;
+      color: white;
+      padding: 20px;
+      border-radius: 10px;
+    }
+    section {
+      background: white;
+      padding: 20px;
+      margin-top: 20px;
+      border-radius: 10px;
+      box-shadow: 0 0 10px rgba(0,0,0,0.1);
+    }
+    h1, h2 {
+      color: #007BFF;
+    }
+    .ph-scale {
+      display: block;
+      margin: 20px auto;
+      max-width: 100%;
+    }
+  </style>
+</head>
+<body>
+
+  <header>
+    <h1>Le pH</h1>
+    <p>Comprendre l'acidité et l'alcalinité des solutions</p>
+  </header>
+
+  <section>
+    <h2>Définition du pH</h2>
+    <p>
+      Le pH, ou potentiel hydrogène, est une mesure qui indique si une solution est acide, neutre ou basique (alcaline).
+      Il est compris entre 0 et 14 :
+      <ul>
+        <li>pH &lt; 7 : solution acide</li>
+        <li>pH = 7 : solution neutre</li>
+        <li>pH &gt; 7 : solution basique</li>
+      </ul>
+      L'eau pure, par exemple, a un pH proche de 7.
+    </p>
+  </section>
+
+  <section>
+    <h2>Échelle de pH</h2>
+    <p>Voici une représentation visuelle de l'échelle de pH :</p>
+    <svg class="ph-scale" viewBox="0 0 700 50">
+      <defs>
+        <linearGradient id="phGradient" x1="0%" y1="0%" x2="100%" y2="0%">
+          <stop offset="0%" stop-color="red"/>
+          <stop offset="50%" stop-color="green"/>
+          <stop offset="100%" stop-color="violet"/>
+        </linearGradient>
+      </defs>
+      <rect x="0" y="0" width="700" height="50" fill="url(#phGradient)" stroke="#000"/>
+      <!-- Graduations -->
+      <g font-family="Arial" font-size="12" fill="#000">
+        <text x="0" y="45">0</text>
+        <text x="100" y="45">2</text>
+        <text x="200" y="45">4</text>
+        <text x="300" y="45">6</text>
+        <text x="350" y="45">7</text>
+        <text x="400" y="45">8</text>
+        <text x="500" y="45">10</text>
+        <text x="600" y="45">12</text>
+        <text x="680" y="45">14</text>
+      </g>
+    </svg>
+    <p>Du rouge (acide) au violet (basique).</p>
+  </section>
+
+  <section>
+    <h2>Comment mesurer le pH ?</h2>
+    <p>
+      Le pH se mesure grâce à des indicateurs colorés, des papiers pH ou des pH-mètres électroniques.
+      Les indicateurs changent de couleur en fonction de l'acidité de la solution.
+      Cette mesure est importante en chimie, biologie, agriculture ou encore dans l'industrie alimentaire.
+    </p>
+  </section>
+
+  <section>
+    <h2>Applications du pH</h2>
+    <p>
+      Connaître le pH est essentiel pour contrôler la qualité de l'eau potable, des sols agricoles ou encore pour des expériences en laboratoire.
+      Par exemple, un sol trop acide peut nuire aux plantes, tandis qu'une piscine doit rester légèrement basique pour éviter le développement de bactéries.
+    </p>
+  </section>
+
+  <section>
+    <h2>L'échelle logarithmique</h2>
+    <p>
+      L'échelle est logarithmique : chaque unité de pH correspond à un facteur 10 dans la concentration en ions H<sup>+</sup>.
+      Cela signifie qu'une solution de pH 4 est dix fois plus acide qu'une solution de pH 5.
+    </p>
+  </section>
+
+</body>
+</html>

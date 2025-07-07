@@ -111,6 +111,31 @@
 </script>
 
 </body>
+
+<section>
+  <h2>Charge et Décharge d’un Condensateur RC</h2>
+  <p>
+    Lorsqu’un condensateur est associé à une résistance, on forme un circuit RC qui illustre parfaitement la notion de charge et de décharge électrique. Ce montage simple est fondamental en électronique pour comprendre le comportement transitoire d’un condensateur.
+  </p>
+  <p>
+    Quand on ferme l’interrupteur d’un circuit RC alimenté par une source de tension continue, le condensateur commence à se charger. Initialement, le courant est maximal car la différence de potentiel est maximale. À mesure que le condensateur se remplit de charges, la différence de potentiel à ses bornes augmente et le courant diminue progressivement. La tension aux bornes du condensateur suit une loi exponentielle donnée par :
+    V(t) = V<sub>0</sub> × (1 − e<sup>−t/RC</sup>)
+    où V<sub>0</sub> est la tension de la source, R est la résistance et C la capacité.
+  </p>
+  <p>
+    Le produit RC est appelé constante de temps (τ). Elle indique le temps nécessaire pour que le condensateur atteigne environ 63 % de sa charge maximale. Après environ cinq constantes de temps (5τ), on considère que le condensateur est pratiquement complètement chargé.
+  </p>
+  <p>
+    La décharge fonctionne de manière similaire, mais inversée. Lorsqu’on déconnecte la source et qu’on ferme le circuit sur la résistance, le condensateur libère progressivement son énergie. La tension diminue selon :
+    V(t) = V<sub>0</sub> × e<sup>−t/RC</sup>
+    Le courant, quant à lui, diminue aussi exponentiellement jusqu’à atteindre zéro.
+  </p>
+  <p>
+    Ces propriétés sont essentielles pour le filtrage, le lissage de signaux ou la création de temporisations. Les circuits RC se retrouvent dans de nombreux dispositifs électroniques, comme les oscillateurs ou les filtres passe-bas et passe-haut. Comprendre la dynamique de charge et de décharge permet de mieux concevoir et analyser des systèmes électriques et électroniques.
+  </p>
+</section>
+
+
 </html>
 
 
